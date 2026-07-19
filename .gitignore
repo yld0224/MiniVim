@@ -1,0 +1,9 @@
+#build 
+build/
+#target
+MiniVim
+#vscode settings
+.vscode/
+#intermediate files
+*.o
+*.d

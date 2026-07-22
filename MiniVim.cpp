@@ -3,12 +3,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
-#include <string>
+#include <sys/types.h>
 #include <termios.h>
 #include <unistd.h>
 
+#include <fstream>
+#include <string>
+#include <vector>
+
 /*** defines ***/
 #define CTRL_KEY(k) ((k) & 0x1f)
+#define TAB_STOP 4
 
 enum class editorKey{
 	ARROW_LEFT = 1000,
@@ -22,11 +27,46 @@ enum class editorKey{
 	PAGE_DOWN
 };
 /*** data ***/
+class editorRow{
+public:
+	std::string chars_;
+	std::string render_;
+
+	explicit editorRow(const std::string& str) : chars_(str) {
+        for (char ch : chars_) {
+            if (ch != '\t') {
+                render_ += ch;
+            } else {
+                do {
+                    render_ += ' ';
+                } while (render_.size() % TAB_STOP != 0);
+            }
+        }
+    }
+
+	size_t CxToRx(int cx){
+		int rx = 0;
+  		for (int j = 0; j < cx; j++) {
+    		if (this->chars_[j] == '\t'){
+      			rx += (TAB_STOP - 1) - (rx % TAB_STOP);
+			}
+    		rx++;
+  		}
+  		return rx;
+	}
+};
+
 class editorConfig {
 public:
-	int cx, cy;
+	size_t cx = 0;
+	size_t cy = 0;
+	size_t rx = 0;
+	size_t rowoff = 0;
+	size_t coloff = 0;
 	int screenrows;
 	int screencols;
+	std::vector<editorRow> rows{};
+	std::string filename;
 	termios ori_termios;
 };
 editorConfig E;
@@ -145,33 +185,63 @@ int getWindowSize(int *rows, int *cols){
 	}
 }
 
+/*** file i/o***/
+void editorOpen(const std::string& filename) {
+	std::ifstream file(filename);
+	E.filename = filename;
+	if (!file.is_open()) {
+		die("open");
+	}
+	std::string line;
+	while (std::getline(file, line)) {
+		if (!line.empty() && line.back() == '\r') {
+			line.pop_back();
+		}
+		E.rows.emplace_back(line);
+	}
+	if (file.bad()) {die("read file");}
+}
+
+
 /*** input ***/
 void editorMoveCursor(int key){
+	editorRow *row = (E.cy >= E.rows.size()) ? nullptr : &E.rows[E.cy];
 	switch(key) {
 		case static_cast<int>(editorKey::ARROW_LEFT):{
-			if (E.cx > 0) {
+			if (E.cx != 0) {
                 E.cx--;
-            }
+            } else if (E.cy > 0) {
+				E.cy--;
+				E.cx = E.rows[E.cy].chars_.size();
+			}
             break;
 		}
 		case static_cast<int>(editorKey::ARROW_RIGHT):{
-			if (E.cx < E.screencols - 1) {
-                E.cx++;
-            }
+			if (row && E.cx < row->chars_.size()){
+            	E.cx++;
+			} else if (row && E.cx == row->chars_.size()) {
+				E.cy++;
+				E.cx = 0;
+			}
             break;
 		}
 		case static_cast<int>(editorKey::ARROW_UP):{
-			if (E.cy > 0) {
+			if (E.cy != 0) {
                 E.cy--;
             }
             break;
 		}
 		case static_cast<int>(editorKey::ARROW_DOWN):{
-			if (E.cy < E.screenrows - 1) {
+			if (E.cy < E.rows.size()) {
                 E.cy++;
             }
             break;
 		}
+	}
+	row = (E.cy >= E.rows.size()) ? nullptr : &E.rows[E.cy];
+	size_t rowlen = row ? row->chars_.size() : 0;
+	if (E.cx > rowlen) {
+		E.cx = rowlen;
 	}
 }
 
@@ -189,11 +259,18 @@ void editorProcessKeypress() {
 			E.cx = 0;
       		break;
 		case static_cast<int>(editorKey::END_KEY):
-			E.cx = E.screencols - 1;
+			if (E.cy < E.rows.size()){
+				E.cx = E.rows[E.cy].chars_.size();
+			}
 			break;
 
 		case static_cast<int>(editorKey::PAGE_UP):
 		case static_cast<int>(editorKey::PAGE_DOWN):{
+			if (c == static_cast<int>(editorKey::PAGE_UP)) {
+          		E.cy = E.rowoff;
+        	} else if (c == static_cast<int>(editorKey::PAGE_DOWN)) {
+          		E.cy = std::min(E.rowoff + E.screenrows - 1, E.rows.size());
+        	}
 			int times = E.screenrows;
 			while (times--) {
 				editorMoveCursor(c == static_cast<int>(editorKey::PAGE_UP) ? 
@@ -212,26 +289,69 @@ void editorProcessKeypress() {
 }
 
 /*** output ***/
-void editorDrawRows(std::string& str){
-	for (int y = 0; y < E.screenrows; ++y) {
-		str += "~";
-		
-		str += "\x1b[K";
-		if (y < E.screenrows - 1) {
-			str += "\r\n";
-		}
+void editorScroll() {
+	E.rx = 0;
+	if (E.cy < E.rows.size()) {
+		E.rx = E.rows[E.cy].CxToRx(E.cx);
+	}
+	if (E.cy < E.rowoff) {
+		E.rowoff = E.cy;
+	}
+	if (E.cy >= E.rowoff + E.screenrows) {
+		E.rowoff = E.cy - E.screenrows + 1;
+	}
+	if (E.rx < E.coloff) {
+		E.coloff = E.rx;
+	}
+	if (E.rx >= E.coloff + E.screencols) {
+		E.coloff = E.rx - E.screencols + 1;
 	}
 }
 
+void editorDrawRows(std::string& str){
+	for (int y = 0; y < E.screenrows; ++y) {
+		int filerow = y + E.rowoff;
+		if (filerow >= static_cast<int>(E.rows.size())) {
+			str += "~";
+		} else {
+			int len = E.rows[filerow].render_.size() - E.coloff;
+			if (len < 0) {len = 0;}
+			if (len > E.screencols) {len = E.screencols;}
+			if (len > 0) {str += E.rows[filerow].render_.substr(E.coloff, len);}
+		}
+		str += "\x1b[K";
+		str += "\r\n";
+	}
+}
+
+void editorDrawStatusbar(std::string& str){
+	str += "\x1b[7m";
+	int len = 0;
+	if (E.filename.empty()) {
+		str += "[Unnamed]";
+		len = 9;
+	} else {
+		str += E.filename.substr(0, std::min(E.screencols, static_cast<int>(E.filename.size())));
+		len = std::min(E.screencols, static_cast<int>(E.filename.size()));
+	}
+	for (int i = len; i < E.screencols; ++i) {
+		str += " ";
+	}
+	str += "\x1b[m";
+}
+
 void editorRefreshScreen(){
+	editorScroll();
+
 	std::string str;
 	str += "\x1b[?25l";
 	str += "\x1b[H";
 
 	editorDrawRows(str);
+	editorDrawStatusbar(str);
 
 	char buf[32];
-  	int len = snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1);
+  	int len = snprintf(buf, sizeof(buf), "\x1b[%ld;%ldH", (E.cy - E.rowoff) + 1, (E.rx - E.coloff) + 1);
   	str.append(buf, len); 
 
 	str += "\x1b[?25h";
@@ -242,16 +362,23 @@ void editorRefreshScreen(){
 
 /*** init ***/
 void initEditor() {
-	E.cx = 0;
-	E.cy = 0;
 	if (getWindowSize(&E.screenrows, &E.screencols) == -1) {
 		die("getWindowSize");
 	}
+	E.screenrows -= 1;
 }
 
-int main(){
+int main(int argc, char *argv[]){
 	enableRawMode();
 	initEditor();
+	if (argc > 2) {
+		std::string msg = "Too many arguments";
+		write(STDOUT_FILENO, msg.data(), msg.size());
+		exit(1);
+	}
+	if (argc == 2) {
+		editorOpen(argv[1]);
+	}
 
 	while (true){
 		editorRefreshScreen();

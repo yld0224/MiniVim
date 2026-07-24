@@ -1,12 +1,12 @@
 /*** includes ***/
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <termios.h>
 #include <unistd.h>
 
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <string>
 #include <vector>

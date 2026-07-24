@@ -4,7 +4,6 @@
 #include "Buffer.hpp"
 #include "Types.hpp"
 
-#include <cstddef>
 #include <optional>
 
 namespace sjtu {
@@ -14,19 +13,17 @@ namespace sjtu {
 class Window {
 public:
     void resize(ScreenSize terminalSize);
-    void applyMotion(const Buffer& buffer, Motion motion,
-                     std::optional<std::size_t> count = std::nullopt);
+    void applyMotion(const Buffer& buffer, Motion motion, std::optional<std::size_t> count = std::nullopt);
     void ensureCursorVisible(const Buffer& buffer);
 
-    [[nodiscard]] const Position& cursor() const noexcept;
-    [[nodiscard]] const Viewport& viewport() const noexcept;
-    [[nodiscard]] std::size_t cursorScreenColumn(const Buffer& buffer) const;
+    const Position& cursor() const noexcept;
+    const Viewport& viewport() const noexcept;
+    std::size_t cursorScreenColumn(const Buffer& buffer) const;
 
 private:
-    [[nodiscard]] static std::size_t lastColumn(const std::string& line) noexcept;
-    [[nodiscard]] static std::size_t firstNonBlank(const std::string& line) noexcept;
-    [[nodiscard]] static std::size_t scaledStep(std::size_t step,
-                                                 std::size_t count) noexcept;
+    static std::size_t lastColumn(const std::string& line) noexcept;
+    static std::size_t firstNonBlank(const std::string& line) noexcept;
+    static std::size_t scaledStep(std::size_t step, std::size_t count) noexcept;
 
     void normalize(const Buffer& buffer);
     void updateDesiredColumn(const Buffer& buffer);

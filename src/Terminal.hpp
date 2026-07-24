@@ -22,15 +22,15 @@ public:
     Terminal(Terminal&&) = delete;
     Terminal& operator=(Terminal&&) = delete;
 
-    [[nodiscard]] KeyEvent readKey();
-    [[nodiscard]] ScreenSize screenSize();
+    KeyEvent readKey();
+    ScreenSize screenSize();
     void writeOutput(std::string_view output);
     void clearScreen();
 
 private:
-    [[nodiscard]] unsigned char readByte();
-    [[nodiscard]] std::optional<unsigned char> tryReadByte();
-    [[nodiscard]] ScreenSize queryCursorPosition();
+    unsigned char readByte();
+    std::optional<unsigned char> tryReadByte();
+    ScreenSize queryCursorPosition();
 
     termios original_{};
     bool rawModeEnabled_{false};

@@ -1,18 +1,14 @@
 #ifndef MINIVIM_TEXT_LAYOUT_HPP
 #define MINIVIM_TEXT_LAYOUT_HPP
 
-#include <algorithm>
-#include <cstddef>
 #include <string>
 #include <string_view>
 
 namespace sjtu::text {
 
-// Keep the original viewer's tab width. This can become an editor option later.
 inline constexpr std::size_t tabStop = 4;
 
-[[nodiscard]] inline std::size_t nextScreenColumn(std::size_t column,
-                                                   unsigned char value) noexcept {
+inline std::size_t nextScreenColumn(std::size_t column, unsigned char value) noexcept {
     if (value == '\t') {
         return column + (tabStop - (column % tabStop));
     }
@@ -22,29 +18,25 @@ inline constexpr std::size_t tabStop = 4;
     return column + 1;
 }
 
-[[nodiscard]] inline std::size_t screenColumn(std::string_view line,
-                                               std::size_t bufferColumn) noexcept {
+inline std::size_t screenColumn(std::string_view line, std::size_t bufferColumn) noexcept {
     const auto limit = std::min(bufferColumn, line.size());
     std::size_t column = 0;
     for (std::size_t index = 0; index < limit; ++index) {
-        column = nextScreenColumn(
-            column, static_cast<unsigned char>(line[index]));
+        column = nextScreenColumn(column, static_cast<unsigned char>(line[index]));
     }
     return column;
 }
 
 // Return the character whose displayed cell contains targetColumn. A Normal
 // mode cursor always points at a character, except that an empty line uses 0.
-[[nodiscard]] inline std::size_t bufferColumn(std::string_view line,
-                                               std::size_t targetColumn) noexcept {
+inline std::size_t bufferColumn(std::string_view line, std::size_t targetColumn) noexcept {
     if (line.empty()) {
         return 0;
     }
 
     std::size_t current = 0;
     for (std::size_t index = 0; index < line.size(); ++index) {
-        const auto next = nextScreenColumn(
-            current, static_cast<unsigned char>(line[index]));
+        const auto next = nextScreenColumn(current, static_cast<unsigned char>(line[index]));
         if (targetColumn < next) {
             return index;
         }
@@ -53,7 +45,7 @@ inline constexpr std::size_t tabStop = 4;
     return line.size() - 1;
 }
 
-[[nodiscard]] inline std::string expandForDisplay(std::string_view line) {
+inline std::string expandForDisplay(std::string_view line) {
     std::string rendered;
     rendered.reserve(line.size());
 

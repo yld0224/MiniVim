@@ -11,7 +11,7 @@
 namespace sjtu {
 namespace {
 
-[[noreturn]] void throwSystemError(const char* operation) {
+void throwSystemError(const char* operation) {
     throw std::system_error(errno, std::generic_category(), operation);
 }
 
@@ -23,8 +23,7 @@ Terminal::Terminal() {
     }
 
     termios raw = original_;
-    const auto inputFlags =
-        static_cast<tcflag_t>(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+    const auto inputFlags = static_cast<tcflag_t>(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
     const auto outputFlags = static_cast<tcflag_t>(OPOST);
     const auto localFlags = static_cast<tcflag_t>(ECHO | ICANON | IEXTEN | ISIG);
 
@@ -43,8 +42,7 @@ Terminal::Terminal() {
 
 Terminal::~Terminal() noexcept {
     if (rawModeEnabled_) {
-        static_cast<void>(
-            ::tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_));
+        static_cast<void>(::tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_));
     }
 }
 
@@ -127,10 +125,8 @@ KeyEvent Terminal::readKey() {
 
 ScreenSize Terminal::screenSize() {
     winsize size{};
-    if (::ioctl(STDOUT_FILENO, TIOCGWINSZ, &size) == 0 &&
-        size.ws_row > 0 && size.ws_col > 0) {
-        return {static_cast<std::size_t>(size.ws_row),
-                static_cast<std::size_t>(size.ws_col)};
+    if (::ioctl(STDOUT_FILENO, TIOCGWINSZ, &size) == 0 && size.ws_row > 0 && size.ws_col > 0) {
+        return {static_cast<std::size_t>(size.ws_row), static_cast<std::size_t>(size.ws_col)};
     }
 
     writeOutput("\x1b[999C\x1b[999B");
@@ -213,8 +209,7 @@ ScreenSize Terminal::queryCursorPosition() {
         rows <= 0 || columns <= 0) {
         throw std::runtime_error("cannot determine terminal size");
     }
-    return {static_cast<std::size_t>(rows),
-            static_cast<std::size_t>(columns)};
+    return {static_cast<std::size_t>(rows), static_cast<std::size_t>(columns)};
 }
 
 } // namespace sjtu

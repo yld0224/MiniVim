@@ -18,7 +18,7 @@ public:
     explicit Editor(const std::filesystem::path& path = {});
 
     void run();
-    [[nodiscard]] bool isRunning() const noexcept;
+    bool isRunning() const noexcept;
 
 private:
     void refreshScreen();

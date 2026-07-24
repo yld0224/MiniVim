@@ -30,8 +30,7 @@ Buffer::Buffer(const std::filesystem::path& path) : path_(path) {
     ensureNonEmpty();
 }
 
-Buffer::Buffer(std::vector<std::string> lines, std::filesystem::path path)
-    : lines_(std::move(lines)), path_(std::move(path)) {
+Buffer::Buffer(std::vector<std::string> lines, std::filesystem::path path) : lines_(std::move(lines)), path_(std::move(path)) {
     ensureNonEmpty();
 }
 

@@ -11,19 +11,16 @@ namespace sjtu {
 class Buffer {
 public:
     explicit Buffer(const std::filesystem::path& path = {});
-    explicit Buffer(std::vector<std::string> lines,
-                    std::filesystem::path path = {});
+    explicit Buffer(std::vector<std::string> lines, std::filesystem::path path = {});
 
-    [[nodiscard]] std::size_t lineCount() const noexcept;
-    [[nodiscard]] const std::string& line(std::size_t row) const;
-    [[nodiscard]] const std::filesystem::path& path() const noexcept;
-    [[nodiscard]] std::string displayName() const;
+    std::size_t lineCount() const noexcept;
+    const std::string& line(std::size_t row) const;
+    const std::filesystem::path& path() const noexcept;
+    std::string displayName() const;
 
 private:
     void ensureNonEmpty();
 
-    // Keeping this private ensures future editing and undo code has one place
-    // to maintain buffer invariants.
     std::vector<std::string> lines_;
     std::filesystem::path path_;
 };

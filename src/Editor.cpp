@@ -1,8 +1,6 @@
 #include "Editor.hpp"
 
 #include <algorithm>
-#include <cctype>
-#include <string_view>
 
 namespace sjtu {
 namespace {
@@ -12,10 +10,8 @@ std::string trim(std::string value) {
         return std::isspace(character) != 0;
     };
 
-    const auto first =
-        std::find_if_not(value.begin(), value.end(), isSpace);
-    const auto last =
-        std::find_if_not(value.rbegin(), value.rend(), isSpace).base();
+    const auto first = std::find_if_not(value.begin(), value.end(), isSpace);
+    const auto last = std::find_if_not(value.rbegin(), value.rend(), isSpace).base();
     if (first >= last) {
         return {};
     }
@@ -28,8 +24,7 @@ bool isPrintable(unsigned char value) {
 
 } // namespace
 
-Editor::Editor(const std::filesystem::path& path)
-    : buffer_(path), terminal_() {}
+Editor::Editor(const std::filesystem::path& path) : buffer_(path), terminal_() {}
 
 void Editor::run() {
     while (running_) {
@@ -48,12 +43,7 @@ void Editor::refreshScreen() {
     window_.ensureCursorVisible(buffer_);
 
     const auto pendingKeys = normalParser_.pendingDisplay();
-    const RenderState state{
-        mode_,
-        commandLine_,
-        message_,
-        pendingKeys,
-    };
+    const RenderState state{mode_, commandLine_, message_, pendingKeys,};
     terminal_.writeOutput(renderer_.render(buffer_, window_, state));
 }
 
@@ -130,19 +120,16 @@ void Editor::executeCommandLine() {
     if (command.empty()) {
         return;
     }
-    if (command == "q" || command == "quit" ||
-        command == "q!" || command == "quit!") {
+    if (command == "q" || command == "quit" || command == "q!" || command == "quit!") {
         running_ = false;
         return;
     }
-    if (command == "w" || command == "write" ||
-        command == "wq" || command == "x") {
+    if (command == "w" || command == "write" || command == "wq" || command == "x") {
         message_ = "viewer is read-only";
         return;
     }
     if (command == "help") {
-        message_ =
-            "viewer: hjkl  0 ^ $  gg G  Ctrl-U/D/B/F  :q";
+        message_ = "viewer: hjkl  0 ^ $  gg G  Ctrl-U/D/B/F  :q";
         return;
     }
     message_ = "Not an editor command: " + command;

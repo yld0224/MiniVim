@@ -27,16 +27,16 @@ struct KeyEvent {
     KeyCode code{KeyCode::Character};
     unsigned char value{0};
 
-    [[nodiscard]] static constexpr KeyEvent character(unsigned char value) noexcept {
+    static constexpr KeyEvent character(unsigned char value) noexcept {
         return {KeyCode::Character, value};
     }
 
-    [[nodiscard]] constexpr bool isCharacter(char expected) const noexcept {
+    constexpr bool isCharacter(char expected) const noexcept {
         return code == KeyCode::Character &&
                value == static_cast<unsigned char>(expected);
     }
 
-    [[nodiscard]] constexpr bool isControl(char expected) const noexcept {
+    constexpr bool isControl(char expected) const noexcept {
         return code == KeyCode::Character && value == controlKey(expected);
     }
 };

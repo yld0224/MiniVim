@@ -28,12 +28,12 @@ struct EditorAction {
 // Buffer mutations.
 class NormalCommandParser {
 public:
-    [[nodiscard]] EditorAction feed(KeyEvent key);
-    [[nodiscard]] std::string pendingDisplay() const;
+    EditorAction feed(KeyEvent key);
+    std::string pendingDisplay() const;
     void reset() noexcept;
 
 private:
-    [[nodiscard]] EditorAction motion(Motion motion);
+    EditorAction motion(Motion motion);
     void appendDigit(unsigned char digit) noexcept;
 
     std::optional<std::size_t> count_;

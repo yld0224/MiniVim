@@ -1,7 +1,5 @@
 #include "Command.hpp"
-
 #include <limits>
-#include <utility>
 
 namespace sjtu {
 
@@ -60,9 +58,7 @@ EditorAction NormalCommandParser::feed(KeyEvent key) {
             prefix_ = value;
             return {};
         case ':': {
-            const auto action =
-                EditorAction{ActionKind::EnterCommandLine, Motion::Left,
-                             std::nullopt};
+            const auto action = EditorAction{ActionKind::EnterCommandLine, Motion::Left, std::nullopt};
             reset();
             return action;
         }

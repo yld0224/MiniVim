@@ -1,44 +1,41 @@
-#ifndef TERMINAL_HPP
-#define TERMINAL_HPP
+#ifndef MINIVIM_TERMINAL_HPP
+#define MINIVIM_TERMINAL_HPP
 
-#include <sys/ioctl.h>
-#include <sys/types.h>
+#include "Key.hpp"
+#include "Types.hpp"
+
+#include <optional>
+#include <string_view>
 #include <termios.h>
-#include <unistd.h>
-#include <cerrno>
-#include <system_error>
 
-namespace sjtu{
+namespace sjtu {
 
-class Terminal{
-private:
-    termios ori_termios;
-
+// Owns the terminal's raw-mode lifetime. No editor state is allowed in this
+// platform boundary, which keeps the core logic testable without a TTY.
+class Terminal {
 public:
+    Terminal();
+    ~Terminal() noexcept;
 
-    Terminal() {
+    Terminal(const Terminal&) = delete;
+    Terminal& operator=(const Terminal&) = delete;
+    Terminal(Terminal&&) = delete;
+    Terminal& operator=(Terminal&&) = delete;
 
-        if (tcgetattr(STDIN_FILENO, &ori_termios) == -1){
-		    throw std::system_error(errno, std::generic_category(), "tcgetattr");
-	    }
-	    termios raw = ori_termios;
-	    raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
-	    raw.c_oflag &= ~(OPOST);
-	    raw.c_cflag |= (CS8);
-	    raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
-	    raw.c_cc[VMIN] = 0;
-	    raw.c_cc[VTIME] = 1;
+    [[nodiscard]] KeyEvent readKey();
+    [[nodiscard]] ScreenSize screenSize();
+    void writeOutput(std::string_view output);
+    void clearScreen();
 
-	    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1){
-		    throw std::system_error(errno, std::generic_category(), "tcsetattr");
-	    }
-    }
+private:
+    [[nodiscard]] unsigned char readByte();
+    [[nodiscard]] std::optional<unsigned char> tryReadByte();
+    [[nodiscard]] ScreenSize queryCursorPosition();
 
-    ~Terminal() noexcept {
-        tcsetattr(STDIN_FILENO, TCSAFLUSH, &ori_termios);
-	}
-    
+    termios original_{};
+    bool rawModeEnabled_{false};
 };
-}
 
-#endif //TERMINAL_HPP
+} // namespace sjtu
+
+#endif // MINIVIM_TERMINAL_HPP

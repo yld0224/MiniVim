@@ -1,21 +1,46 @@
-#ifndef KEY_HPP
-#define KEY_HPP
+#ifndef MINIVIM_KEY_HPP
+#define MINIVIM_KEY_HPP
 
-namespace sjtu{
-    
-#define CTRL_KEY(k) ((k) & 0x1f)
-#define TAB_STOP 4
+namespace sjtu {
 
-enum class editorKey{
-	ARROW_LEFT = 1000,
-  	ARROW_RIGHT,
-  	ARROW_UP,
-  	ARROW_DOWN,
-	DEL_KEY,
-	HOME_KEY,
-	END_KEY,
-	PAGE_UP,
-	PAGE_DOWN
-};
+[[nodiscard]] constexpr unsigned char controlKey(char key) noexcept {
+    return static_cast<unsigned char>(key) & 0x1FU;
 }
-#endif //KEY_HPP
+
+enum class KeyCode {
+    Character,
+    Escape,
+    Enter,
+    Backspace,
+    Delete,
+    Home,
+    End,
+    PageUp,
+    PageDown,
+    ArrowLeft,
+    ArrowRight,
+    ArrowUp,
+    ArrowDown,
+};
+
+struct KeyEvent {
+    KeyCode code{KeyCode::Character};
+    unsigned char value{0};
+
+    [[nodiscard]] static constexpr KeyEvent character(unsigned char value) noexcept {
+        return {KeyCode::Character, value};
+    }
+
+    [[nodiscard]] constexpr bool isCharacter(char expected) const noexcept {
+        return code == KeyCode::Character &&
+               value == static_cast<unsigned char>(expected);
+    }
+
+    [[nodiscard]] constexpr bool isControl(char expected) const noexcept {
+        return code == KeyCode::Character && value == controlKey(expected);
+    }
+};
+
+} // namespace sjtu
+
+#endif // MINIVIM_KEY_HPP

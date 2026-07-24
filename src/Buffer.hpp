@@ -1,52 +1,33 @@
-#ifndef BUFFER_HPP
-#define BUFFER_HPP
+#ifndef MINIVIM_BUFFER_HPP
+#define MINIVIM_BUFFER_HPP
 
-#include <vector>
+#include <cstddef>
+#include <filesystem>
 #include <string>
-#include <fstream>
+#include <vector>
 
-namespace sjtu{
+namespace sjtu {
 
-class Buffer{
-private:
-    std::vector<std::string> rows_;
-    std::string filename_ = "[Unnamed]";
+class Buffer {
 public:
-    Buffer(const std::string& filename) {
-        if (filename.empty()) {
-            return;
-        }
-        filename_ = filename;
-	    std::ifstream file(filename);
-	    if (!file.is_open()) {
-		    throw std::runtime_error("open");
-	    }
-	    std::string line;
-	    while (std::getline(file, line)) {
-		    if (!line.empty() && line.back() == '\r') {
-			    line.pop_back();
-		    }
-		    rows_.emplace_back(line);
-	    }
-	    if (file.bad()) {throw std::runtime_error("read file");}
-    }
+    explicit Buffer(const std::filesystem::path& path = {});
+    explicit Buffer(std::vector<std::string> lines,
+                    std::filesystem::path path = {});
 
-    size_t rowSize() {
-        return rows_.size();
-    }
+    [[nodiscard]] std::size_t lineCount() const noexcept;
+    [[nodiscard]] const std::string& line(std::size_t row) const;
+    [[nodiscard]] const std::filesystem::path& path() const noexcept;
+    [[nodiscard]] std::string displayName() const;
 
-    size_t colSize(size_t row) {
-        return rows_[row].size();
-    }
+private:
+    void ensureNonEmpty();
 
-    std::string* getRow(std::size_t row) {
-        if (row < rows_.size()) {
-            return &rows_[row];
-        }
-        return nullptr;
-    }
-
-    const std::string& getFilename() const {return filename_;}
+    // Keeping this private ensures future editing and undo code has one place
+    // to maintain buffer invariants.
+    std::vector<std::string> lines_;
+    std::filesystem::path path_;
 };
-}
-#endif //BUFFER_HPP
+
+} // namespace sjtu
+
+#endif // MINIVIM_BUFFER_HPP

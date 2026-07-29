@@ -2,6 +2,7 @@
 #include "TextLayout.hpp"
 
 namespace sjtu {
+    
 namespace {
 
 void appendClearedLine(std::string& frame, std::string_view contents, std::size_t width, bool newline) {
@@ -16,7 +17,7 @@ std::string cursorSequence(std::size_t row, std::size_t column) {
     return "\x1b[" + std::to_string(row) + ';' + std::to_string(column) + 'H';
 }
 
-} // namespace
+} // Utility functions for rendering.
 
 std::string Renderer::render(const Buffer& buffer, const Window& window, const RenderState& state) const {
     const auto& viewport = window.viewport();
@@ -73,7 +74,11 @@ std::string Renderer::render(const Buffer& buffer, const Window& window, const R
 }
 
 std::string Renderer::statusLine(const Buffer& buffer, const Window& window, Mode mode) {
-    const auto left = " " + std::string(modeName(mode)) + "  " + text::expandForDisplay(buffer.displayName()) + " [RO]";
+    auto left = " " + std::string(modeName(mode)) + "  " +
+                text::expandForDisplay(buffer.displayName());
+    if (buffer.isModified()) {
+        left += " [+]";
+    }
     const auto right = std::to_string(window.cursor().row + 1) + ',' + std::to_string(window.cursor().column + 1) + ' ';
     return fitLine(left, right, window.viewport().columns);
 }

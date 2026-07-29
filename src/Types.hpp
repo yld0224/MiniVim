@@ -22,8 +22,6 @@ struct Viewport {
     std::size_t columns{1};
 };
 
-// Insert is intentionally present before editing is implemented. The viewer
-// currently enters Normal and Command-line modes only.
 enum class Mode {
     Normal,
     Insert,

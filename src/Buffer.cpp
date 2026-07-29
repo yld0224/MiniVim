@@ -19,6 +19,7 @@ Buffer::Buffer(const std::filesystem::path& path) : path_(path) {
 
     std::string lineText;
     while (std::getline(file, lineText)) {
+        endsWithNewline_ = !file.eof();
         if (!lineText.empty() && lineText.back() == '\r') {
             lineText.pop_back();
         }
@@ -48,6 +49,81 @@ const std::filesystem::path& Buffer::path() const noexcept {
 
 std::string Buffer::displayName() const {
     return path_.empty() ? "[No Name]" : path_.string();
+}
+
+bool Buffer::isModified() const noexcept {
+    return modified_;
+}
+
+void Buffer::insertCharacter(std::size_t row, std::size_t column, char value) {
+    auto& lineText = lines_.at(row);
+    if (column > lineText.size()) {
+        throw std::out_of_range("column out of range");
+    }
+    lineText.insert(column, 1, value);
+    modified_ = true;
+}
+
+void Buffer::eraseCharacter(std::size_t row, std::size_t column) {
+    auto& lineText = lines_.at(row);
+    if (column >= lineText.size()) {
+        throw std::out_of_range("column out of range");
+    }
+    lineText.erase(column, 1);
+    modified_ = true;
+}
+
+void Buffer::splitLine(std::size_t row, std::size_t column) {
+    const auto& lineText = lines_.at(row);
+    if (column > lineText.size()) {
+        throw std::out_of_range("column out of range");
+    }
+
+    const auto remainder = lineText.substr(column);
+    const auto next = lines_.begin() +
+                      static_cast<std::vector<std::string>::difference_type>(row + 1);
+    lines_.insert(next, remainder);
+    lines_[row].erase(column);
+    modified_ = true;
+}
+
+void Buffer::joinWithNextLine(std::size_t row) {
+    if (row + 1 >= lines_.size()) {
+        throw std::out_of_range("line out of range");
+    }
+
+    lines_[row] += lines_[row + 1];
+    const auto next = lines_.begin() +
+                      static_cast<std::vector<std::string>::difference_type>(row + 1);
+    lines_.erase(next);
+    modified_ = true;
+}
+
+void Buffer::save() {
+    if (path_.empty()) {
+        throw std::runtime_error("no file name");
+    }
+
+    std::ofstream file(path_, std::ios::binary | std::ios::trunc);
+    if (!file.is_open()) {
+        throw std::runtime_error("cannot write " + path_.string());
+    }
+
+    for (std::size_t row = 0; row < lines_.size(); ++row) {
+        if (row > 0) {
+            file.put('\n');
+        }
+        file << lines_[row];
+    }
+    if (endsWithNewline_) {
+        file.put('\n');
+    }
+
+    file.close();
+    if (!file) {
+        throw std::runtime_error("cannot write " + path_.string());
+    }
+    modified_ = false;
 }
 
 void Buffer::ensureNonEmpty() {

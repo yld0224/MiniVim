@@ -24,9 +24,12 @@ private:
     void refreshScreen();
     void processKey(KeyEvent key);
     void execute(const EditorAction& action);
+    void handleInsert(KeyEvent key);
+    void leaveInsert();
     void handleCommandLine(KeyEvent key);
     void executeCommandLine();
     void leaveCommandLine();
+    bool saveBuffer();
 
     Buffer buffer_;
     Terminal terminal_;

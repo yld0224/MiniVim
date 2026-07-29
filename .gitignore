@@ -7,3 +7,5 @@ MiniVim
 #intermediate files
 *.o
 *.d
+#compile
+compile_commands.json

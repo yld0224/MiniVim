@@ -15,6 +15,8 @@ public:
     void resize(ScreenSize terminalSize);
     void applyMotion(const Buffer& buffer, Motion motion, std::optional<std::size_t> count = std::nullopt);
     void ensureCursorVisible(const Buffer& buffer);
+    void setNormalCursor(const Buffer& buffer, Position position);
+    void setInsertCursor(const Buffer& buffer, Position position);
 
     const Position& cursor() const noexcept;
     const Viewport& viewport() const noexcept;
@@ -26,6 +28,7 @@ private:
     static std::size_t scaledStep(std::size_t step, std::size_t count) noexcept;
 
     void normalize(const Buffer& buffer);
+    void setCursor(const Buffer& buffer, Position position, bool allowLineEnd);
     void updateDesiredColumn(const Buffer& buffer);
     void moveLeft(const Buffer& buffer, std::size_t count);
     void moveRight(const Buffer& buffer, std::size_t count);

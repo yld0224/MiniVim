@@ -104,6 +104,14 @@ void Window::ensureCursorVisible(const Buffer& buffer) {
     }
 }
 
+void Window::setNormalCursor(const Buffer& buffer, Position position) {
+    setCursor(buffer, position, false);
+}
+
+void Window::setInsertCursor(const Buffer& buffer, Position position) {
+    setCursor(buffer, position, true);
+}
+
 const Position& Window::cursor() const noexcept {
     return cursor_;
 }
@@ -138,6 +146,15 @@ std::size_t Window::scaledStep(std::size_t step, std::size_t count) noexcept {
 void Window::normalize(const Buffer& buffer) {
     cursor_.row = std::min(cursor_.row, buffer.lineCount() - 1);
     cursor_.column = std::min(cursor_.column, lastColumn(buffer.line(cursor_.row)));
+}
+
+void Window::setCursor(const Buffer& buffer, Position position, bool allowLineEnd) {
+    cursor_.row = std::min(position.row, buffer.lineCount() - 1);
+    const auto& lineText = buffer.line(cursor_.row);
+    const auto maximum = allowLineEnd ? lineText.size() : lastColumn(lineText);
+    cursor_.column = std::min(position.column, maximum);
+    updateDesiredColumn(buffer);
+    ensureCursorVisible(buffer);
 }
 
 void Window::updateDesiredColumn(const Buffer& buffer) {

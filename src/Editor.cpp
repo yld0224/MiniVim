@@ -1,6 +1,8 @@
 #include "Editor.hpp"
 
 #include <algorithm>
+#include <cctype>
+#include <exception>
 
 namespace sjtu {
 namespace {
@@ -60,9 +62,7 @@ void Editor::processKey(KeyEvent key) {
     }
 
     if (mode_ == Mode::Insert) {
-        if (key.code == KeyCode::Escape) {
-            mode_ = Mode::Normal;
-        }
+        handleInsert(key);
         return;
     }
 
@@ -77,6 +77,11 @@ void Editor::execute(const EditorAction& action) {
     case ActionKind::Move:
         window_.applyMotion(buffer_, action.motion, action.count);
         return;
+    case ActionKind::EnterInsert:
+        mode_ = Mode::Insert;
+        window_.setInsertCursor(buffer_, window_.cursor());
+        message_.clear();
+        return;
     case ActionKind::EnterCommandLine:
         mode_ = Mode::CommandLine;
         commandLine_.clear();
@@ -86,6 +91,63 @@ void Editor::execute(const EditorAction& action) {
         running_ = false;
         return;
     }
+}
+
+void Editor::handleInsert(KeyEvent key) {
+    if (key.code == KeyCode::Escape) {
+        leaveInsert();
+        return;
+    }
+
+    auto cursor = window_.cursor();
+    if (key.code == KeyCode::Enter) {
+        buffer_.splitLine(cursor.row, cursor.column);
+        ++cursor.row;
+        cursor.column = 0;
+        window_.setInsertCursor(buffer_, cursor);
+        return;
+    }
+
+    if (key.code == KeyCode::Backspace) {
+        if (cursor.column > 0) {
+            buffer_.eraseCharacter(cursor.row, cursor.column - 1);
+            --cursor.column;
+        } else if (cursor.row > 0) {
+            const auto previousLength = buffer_.line(cursor.row - 1).size();
+            buffer_.joinWithNextLine(cursor.row - 1);
+            --cursor.row;
+            cursor.column = previousLength;
+        }
+        window_.setInsertCursor(buffer_, cursor);
+        return;
+    }
+
+    if (key.code == KeyCode::Delete) {
+        if (cursor.column < buffer_.line(cursor.row).size()) {
+            buffer_.eraseCharacter(cursor.row, cursor.column);
+        } else if (cursor.row + 1 < buffer_.lineCount()) {
+            buffer_.joinWithNextLine(cursor.row);
+        }
+        window_.setInsertCursor(buffer_, cursor);
+        return;
+    }
+
+    if (key.code == KeyCode::Character &&
+        (isPrintable(key.value) || key.value == '\t')) {
+        buffer_.insertCharacter(
+            cursor.row, cursor.column, static_cast<char>(key.value));
+        ++cursor.column;
+        window_.setInsertCursor(buffer_, cursor);
+    }
+}
+
+void Editor::leaveInsert() {
+    auto cursor = window_.cursor();
+    if (cursor.column > 0) {
+        --cursor.column;
+    }
+    window_.setNormalCursor(buffer_, cursor);
+    mode_ = Mode::Normal;
 }
 
 void Editor::handleCommandLine(KeyEvent key) {
@@ -120,16 +182,37 @@ void Editor::executeCommandLine() {
     if (command.empty()) {
         return;
     }
-    if (command == "q" || command == "quit" || command == "q!" || command == "quit!") {
+
+    if (command == "q" || command == "quit") {
+        if (buffer_.isModified()) {
+            message_ = "No write since last change (add ! to override)";
+            return;
+        }
         running_ = false;
         return;
     }
-    if (command == "w" || command == "write" || command == "wq" || command == "x") {
-        message_ = "viewer is read-only";
+    if (command == "q!" || command == "quit!") {
+        running_ = false;
+        return;
+    }
+    if (command == "w" || command == "write") {
+        static_cast<void>(saveBuffer());
+        return;
+    }
+    if (command == "wq") {
+        if (saveBuffer()) {
+            running_ = false;
+        }
+        return;
+    }
+    if (command == "x") {
+        if (!buffer_.isModified() || saveBuffer()) {
+            running_ = false;
+        }
         return;
     }
     if (command == "help") {
-        message_ = "viewer: hjkl  0 ^ $  gg G  Ctrl-U/D/B/F  :q";
+        message_ = "editor: i  Esc  hjkl  0 ^ $  gg G  :w  :q";
         return;
     }
     message_ = "Not an editor command: " + command;
@@ -138,6 +221,21 @@ void Editor::executeCommandLine() {
 void Editor::leaveCommandLine() {
     mode_ = Mode::Normal;
     commandLine_.clear();
+}
+
+bool Editor::saveBuffer() {
+    try {
+        buffer_.save();
+    } catch (const std::exception& error) {
+        message_ = error.what();
+        return false;
+    }
+
+    const auto lines = buffer_.lineCount();
+    message_ = "\"" + buffer_.displayName() + "\" " +
+               std::to_string(lines) +
+               (lines == 1 ? " line written" : " lines written");
+    return true;
 }
 
 } // namespace sjtu

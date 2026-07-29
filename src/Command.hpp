@@ -13,6 +13,7 @@ namespace sjtu {
 enum class ActionKind {
     None,
     Move,
+    EnterInsert,
     EnterCommandLine,
     Quit,
 };

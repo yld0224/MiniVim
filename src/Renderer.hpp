@@ -17,8 +17,10 @@ struct RenderState {
     std::string_view pendingKeys;
 };
 
-// Renderer is deliberately free of terminal I/O and mutable editor state. It
-// turns a snapshot into one ANSI frame that Terminal writes atomically.
+/***
+ Renderer is deliberately free of terminal I/O and mutable editor state.
+ It turns a snapshot into one ANSI frame that Terminal writes atomically.
+*/
 class Renderer {
 public:
     std::string render(const Buffer& buffer, const Window& window, const RenderState& state) const;

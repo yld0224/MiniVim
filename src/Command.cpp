@@ -54,6 +54,11 @@ EditorAction NormalCommandParser::feed(KeyEvent key) {
             return motion(Motion::WindowMiddle);
         case 'L':
             return motion(Motion::WindowBottom);
+        case 'i': {
+            const auto action = EditorAction{ActionKind::EnterInsert, Motion::Left, std::nullopt};
+            reset();
+            return action;
+        }
         case 'g':
             prefix_ = value;
             return {};

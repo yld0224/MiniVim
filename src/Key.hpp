@@ -3,7 +3,7 @@
 
 namespace sjtu {
 
-[[nodiscard]] constexpr unsigned char controlKey(char key) noexcept {
+constexpr unsigned char controlKey(char key) noexcept {
     return static_cast<unsigned char>(key) & 0x1FU;
 }
 

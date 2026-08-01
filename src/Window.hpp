@@ -32,6 +32,9 @@ private:
     void updateDesiredColumn(const Buffer& buffer);
     void moveLeft(const Buffer& buffer, std::size_t count);
     void moveRight(const Buffer& buffer, std::size_t count);
+    void moveWordForward(const Buffer& buffer, std::size_t count);
+    void moveWordBackward(const Buffer& buffer, std::size_t count);
+    void moveWordEnd(const Buffer& buffer, std::size_t count);
     void moveUp(const Buffer& buffer, std::size_t count);
     void moveDown(const Buffer& buffer, std::size_t count);
     void moveVerticallyTo(const Buffer& buffer, std::size_t row);

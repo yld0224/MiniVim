@@ -24,12 +24,19 @@ private:
     void refreshScreen();
     void processKey(KeyEvent key);
     void execute(const EditorAction& action);
+    void enterInsert(Position position);
+    void openLineBelow();
+    void openLineAbove();
+    void deleteCharacters(std::size_t count);
+    void deleteLines(std::size_t count);
+    void deleteToLineEnd();
+    void joinLines(std::size_t lineCount);
     void handleInsert(KeyEvent key);
     void leaveInsert();
     void handleCommandLine(KeyEvent key);
     void executeCommandLine();
     void leaveCommandLine();
-    bool saveBuffer();
+    bool saveBuffer(const std::filesystem::path& path = {});
 
     Buffer buffer_;
     Terminal terminal_;

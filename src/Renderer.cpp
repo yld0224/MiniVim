@@ -20,8 +20,8 @@ std::string cursorSequence(std::size_t row, std::size_t column) {
 } // Utility functions for rendering.
 
 std::string Renderer::render(const Buffer& buffer, const Window& window, const RenderState& state) const {
-    const auto& viewport = window.viewport();
-    const auto width = std::max<std::size_t>(viewport.columns, 1);
+    auto& viewport = window.viewport();
+    auto width = std::max<std::size_t>(viewport.columns, 1);
 
     std::string frame;
     frame.reserve((viewport.textRows + 2) * (width + 8));
@@ -29,16 +29,14 @@ std::string Renderer::render(const Buffer& buffer, const Window& window, const R
     frame += "\x1b[H";
 
     for (std::size_t screenRow = 0; screenRow < viewport.textRows; ++screenRow) {
-        const auto bufferRow = viewport.top + screenRow;
+        auto bufferRow = viewport.top + screenRow;
         if (bufferRow >= buffer.lineCount()) {
             appendClearedLine(frame, "~", width, true);
             continue;
         }
 
-        const auto rendered = text::expandForDisplay(buffer.line(bufferRow));
-        const auto visible = viewport.left < rendered.size()
-                ? std::string_view(rendered).substr(viewport.left, width)
-                : std::string_view{};
+        auto rendered = text::expandForDisplay(buffer.line(bufferRow));
+        auto visible = viewport.left < rendered.size() ? std::string_view(rendered).substr(viewport.left, width) : std::string_view{};
         appendClearedLine(frame, visible, width, true);
     }
 
@@ -74,33 +72,26 @@ std::string Renderer::render(const Buffer& buffer, const Window& window, const R
 }
 
 std::string Renderer::statusLine(const Buffer& buffer, const Window& window, Mode mode) {
-    auto left = " " + std::string(modeName(mode)) + "  " +
-                text::expandForDisplay(buffer.displayName());
+    auto left = " " + std::string(modeName(mode)) + "  " + text::expandForDisplay(buffer.displayName());
     if (buffer.isModified()) {
         left += " [+]";
     }
-    const auto right = std::to_string(window.cursor().row + 1) + ',' + std::to_string(window.cursor().column + 1) + ' ';
+    auto right = std::to_string(window.cursor().row + 1) + ',' + std::to_string(window.cursor().column + 1) + ' ';
     return fitLine(left, right, window.viewport().columns);
 }
 
 std::string Renderer::fitLine(std::string left, std::string right, std::size_t width) {
-    if (width == 0) {
-        return {};
-    }
-    if (right.size() >= width) {
-        return right.substr(right.size() - width);
-    }
+    if (width == 0) { return {}; }
+    if (right.size() >= width) { return right.substr(right.size() - width); }
 
-    const auto leftLimit = width - right.size();
-    if (left.size() > leftLimit) {
-        left.resize(leftLimit);
-    }
+    auto leftLimit = width - right.size();
+    if (left.size() > leftLimit) { left.resize(leftLimit); }
     left.append(leftLimit - left.size(), ' ');
     left += right;
     return left;
 }
 
-std::string_view Renderer::modeName(Mode mode) noexcept {
+std::string_view Renderer::modeName(Mode mode)  {
     switch (mode) {
     case Mode::Normal:
         return "NORMAL";

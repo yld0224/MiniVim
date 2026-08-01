@@ -6,7 +6,7 @@ namespace sjtu {
 EditorAction NormalCommandParser::feed(KeyEvent key) {
     if (key.isControl('q')) {
         reset();
-        return {ActionKind::Quit, Motion::Left, std::nullopt};
+        return {ActionKind::Quit, std::nullopt, std::nullopt};
     }
 
     if (key.code == KeyCode::Escape) {
@@ -19,13 +19,16 @@ EditorAction NormalCommandParser::feed(KeyEvent key) {
             prefix_.reset();
             return motion(Motion::FileStart);
         }
+        if (*prefix_ == 'd' && key.isCharacter('d')) {
+            return command(ActionKind::DeleteLine);
+        }
         reset();
         return {};
     }
 
     if (key.code == KeyCode::Character) {
-        const auto value = key.value;
-        const bool isDigit = value >= '0' && value <= '9';
+        auto value = key.value;
+        bool isDigit = value >= '0' && value <= '9';
         if (isDigit && (value != '0' || count_.has_value())) {
             appendDigit(value);
             return {};
@@ -40,6 +43,12 @@ EditorAction NormalCommandParser::feed(KeyEvent key) {
             return motion(Motion::Up);
         case 'l':
             return motion(Motion::Right);
+        case 'w':
+            return motion(Motion::WordForward);
+        case 'b':
+            return motion(Motion::WordBackward);
+        case 'e':
+            return motion(Motion::WordEnd);
         case '0':
             return motion(Motion::LineStart);
         case '^':
@@ -54,19 +63,32 @@ EditorAction NormalCommandParser::feed(KeyEvent key) {
             return motion(Motion::WindowMiddle);
         case 'L':
             return motion(Motion::WindowBottom);
-        case 'i': {
-            const auto action = EditorAction{ActionKind::EnterInsert, Motion::Left, std::nullopt};
-            reset();
-            return action;
-        }
+        case 'i':
+            return command(ActionKind::InsertBefore);
+        case 'a':
+            return command(ActionKind::InsertAfter);
+        case 'I':
+            return command(ActionKind::InsertAtFirstNonBlank);
+        case 'A':
+            return command(ActionKind::InsertAtLineEnd);
+        case 'o':
+            return command(ActionKind::OpenLineBelow);
+        case 'O':
+            return command(ActionKind::OpenLineAbove);
+        case 'x':
+            return command(ActionKind::DeleteCharacter);
+        case 'D':
+            return command(ActionKind::DeleteToLineEnd);
+        case 'J':
+            return command(ActionKind::JoinLines);
+        case 'd':
+            prefix_ = value;
+            return {};
         case 'g':
             prefix_ = value;
             return {};
-        case ':': {
-            const auto action = EditorAction{ActionKind::EnterCommandLine, Motion::Left, std::nullopt};
-            reset();
-            return action;
-        }
+        case ':':
+            return command(ActionKind::EnterCommandLine);
         default:
             break;
         }
@@ -111,17 +133,6 @@ EditorAction NormalCommandParser::feed(KeyEvent key) {
     }
 }
 
-std::string NormalCommandParser::pendingDisplay() const {
-    std::string display;
-    if (count_.has_value()) {
-        display += std::to_string(*count_);
-    }
-    if (prefix_.has_value()) {
-        display.push_back(static_cast<char>(*prefix_));
-    }
-    return display;
-}
-
 void NormalCommandParser::reset() noexcept {
     count_.reset();
     prefix_.reset();
@@ -133,16 +144,34 @@ EditorAction NormalCommandParser::motion(Motion requestedMotion) {
     return action;
 }
 
-void NormalCommandParser::appendDigit(unsigned char digit) noexcept {
-    const auto numericDigit = static_cast<std::size_t>(digit - '0');
-    const auto current = count_.value_or(0);
-    constexpr auto maximum = std::numeric_limits<std::size_t>::max();
+EditorAction NormalCommandParser::command(ActionKind kind) {
+    EditorAction action{kind, std::nullopt, count_};
+    reset();
+    return action;
+}
+
+
+void NormalCommandParser::appendDigit(unsigned char digit) {
+    auto numericDigit = static_cast<std::size_t>(digit - '0');
+    auto current = count_.value_or(0);
+    auto maximum = std::numeric_limits<std::size_t>::max();
 
     if (current > (maximum - numericDigit) / 10) {
         count_ = maximum;
         return;
     }
     count_ = current * 10 + numericDigit;
+}
+
+std::string NormalCommandParser::pendingDisplay() const {
+    std::string display;
+    if (count_.has_value()) {
+        display += std::to_string(*count_);
+    }
+    if (prefix_.has_value()) {
+        display.push_back(static_cast<char>(*prefix_));
+    }
+    return display;
 }
 
 } // namespace sjtu

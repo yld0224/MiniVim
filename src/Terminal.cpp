@@ -23,9 +23,9 @@ Terminal::Terminal() {
     }
 
     termios raw = original_;
-    const auto inputFlags = static_cast<tcflag_t>(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
-    const auto outputFlags = static_cast<tcflag_t>(OPOST);
-    const auto localFlags = static_cast<tcflag_t>(ECHO | ICANON | IEXTEN | ISIG);
+    auto inputFlags = static_cast<tcflag_t>(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+    auto outputFlags = static_cast<tcflag_t>(OPOST);
+    auto localFlags = static_cast<tcflag_t>(ECHO | ICANON | IEXTEN | ISIG);
 
     raw.c_iflag &= static_cast<tcflag_t>(~inputFlags);
     raw.c_oflag &= static_cast<tcflag_t>(~outputFlags);
@@ -47,7 +47,7 @@ Terminal::~Terminal() noexcept {
 }
 
 KeyEvent Terminal::readKey() {
-    const auto first = readByte();
+    auto first = readByte();
     switch (first) {
     case '\r':
     case '\n':
@@ -61,18 +61,18 @@ KeyEvent Terminal::readKey() {
         return KeyEvent::character(first);
     }
 
-    const auto second = tryReadByte();
+    auto second = tryReadByte();
     if (!second.has_value()) {
         return {KeyCode::Escape, 0};
     }
-    const auto third = tryReadByte();
+    auto third = tryReadByte();
     if (!third.has_value()) {
         return {KeyCode::Escape, 0};
     }
 
     if (*second == '[') {
         if (*third >= '0' && *third <= '9') {
-            const auto fourth = tryReadByte();
+            auto fourth = tryReadByte();
             if (!fourth.has_value() || *fourth != '~') {
                 return {KeyCode::Escape, 0};
             }
@@ -136,15 +136,12 @@ ScreenSize Terminal::screenSize() {
 void Terminal::writeOutput(std::string_view output) {
     std::size_t written = 0;
     while (written < output.size()) {
-        const auto result =
-            ::write(STDOUT_FILENO, output.data() + written, output.size() - written);
+        auto result = ::write(STDOUT_FILENO, output.data() + written, output.size() - written);
         if (result > 0) {
             written += static_cast<std::size_t>(result);
             continue;
         }
-        if (result == -1 && errno == EINTR) {
-            continue;
-        }
+        if (result == -1 && errno == EINTR) { continue; }
         throwSystemError("write");
     }
 }
@@ -156,29 +153,19 @@ void Terminal::clearScreen() {
 unsigned char Terminal::readByte() {
     while (true) {
         unsigned char value = 0;
-        const auto result = ::read(STDIN_FILENO, &value, 1);
-        if (result == 1) {
-            return value;
-        }
-        if (result == -1 && errno != EAGAIN && errno != EINTR) {
-            throwSystemError("read");
-        }
+        auto result = ::read(STDIN_FILENO, &value, 1);
+        if (result == 1) { return value; }
+        if (result == -1 && errno != EAGAIN && errno != EINTR) { throwSystemError("read"); }
     }
 }
 
 std::optional<unsigned char> Terminal::tryReadByte() {
     while (true) {
         unsigned char value = 0;
-        const auto result = ::read(STDIN_FILENO, &value, 1);
-        if (result == 1) {
-            return value;
-        }
-        if (result == 0 || (result == -1 && errno == EAGAIN)) {
-            return std::nullopt;
-        }
-        if (result == -1 && errno == EINTR) {
-            continue;
-        }
+        auto result = ::read(STDIN_FILENO, &value, 1);
+        if (result == 1) { return value; }
+        if (result == 0 || (result == -1 && errno == EAGAIN)) { return std::nullopt; }
+        if (result == -1 && errno == EINTR) { continue; }
         throwSystemError("read");
     }
 }
@@ -189,10 +176,8 @@ ScreenSize Terminal::queryCursorPosition() {
     char response[32]{};
     std::size_t length = 0;
     while (length + 1 < sizeof(response)) {
-        const auto byte = tryReadByte();
-        if (!byte.has_value()) {
-            break;
-        }
+        auto byte = tryReadByte();
+        if (!byte.has_value()) { break; }
         response[length] = static_cast<char>(*byte);
         if (response[length] == 'R') {
             ++length;
@@ -204,9 +189,8 @@ ScreenSize Terminal::queryCursorPosition() {
 
     int rows = 0;
     int columns = 0;
-    if (length < 4 || response[0] != '\x1b' || response[1] != '[' ||
-        std::sscanf(response + 2, "%d;%d", &rows, &columns) != 2 ||
-        rows <= 0 || columns <= 0) {
+    if (length < 4 || response[0] != '\x1b' || response[1] != '[' || std::sscanf(response + 2, "%d;%d", &rows, &columns) != 2
+     || rows <= 0 || columns <= 0) {
         throw std::runtime_error("cannot determine terminal size");
     }
     return {static_cast<std::size_t>(rows), static_cast<std::size_t>(columns)};

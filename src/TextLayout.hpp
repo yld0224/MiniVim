@@ -9,17 +9,13 @@ namespace sjtu::text {
 inline constexpr std::size_t tabStop = 4;
 
 inline std::size_t nextScreenColumn(std::size_t column, unsigned char value) noexcept {
-    if (value == '\t') {
-        return column + (tabStop - (column % tabStop));
-    }
-    if (value < 0x20U || value == 0x7FU) {
-        return column + 2;
-    }
+    if (value == '\t') { return column + (tabStop - (column % tabStop)); }
+    if (value < 0x20U || value == 0x7FU) { return column + 2; }
     return column + 1;
 }
 
 inline std::size_t screenColumn(std::string_view line, std::size_t bufferColumn) noexcept {
-    const auto limit = std::min(bufferColumn, line.size());
+    auto limit = std::min(bufferColumn, line.size());
     std::size_t column = 0;
     for (std::size_t index = 0; index < limit; ++index) {
         column = nextScreenColumn(column, static_cast<unsigned char>(line[index]));

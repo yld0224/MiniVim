@@ -28,7 +28,7 @@ public:
 private:
     static std::string statusLine(const Buffer& buffer, const Window& window, Mode mode);
     static std::string fitLine(std::string left, std::string right, std::size_t width);
-    static std::string_view modeName(Mode mode) noexcept;
+    static std::string_view modeName(Mode mode);
 };
 
 } // namespace sjtu

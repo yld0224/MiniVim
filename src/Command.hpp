@@ -13,20 +13,27 @@ namespace sjtu {
 enum class ActionKind {
     None,
     Move,
-    EnterInsert,
+    InsertBefore,
+    InsertAfter,
+    InsertAtFirstNonBlank,
+    InsertAtLineEnd,
+    OpenLineBelow,
+    OpenLineAbove,
+    DeleteCharacter,
+    DeleteLine,
+    DeleteToLineEnd,
+    JoinLines,
     EnterCommandLine,
     Quit,
 };
 
 struct EditorAction {
     ActionKind kind{ActionKind::None};
-    Motion motion{Motion::Left};
+    std::optional<Motion> motion{};
     std::optional<std::size_t> count{};
 };
 
-// Parses Normal-mode key sequences independently from their effects. Future
-// operator-pending support can extend this state without coupling keys to
-// Buffer mutations.
+
 class NormalCommandParser {
 public:
     EditorAction feed(KeyEvent key);
@@ -35,7 +42,8 @@ public:
 
 private:
     EditorAction motion(Motion motion);
-    void appendDigit(unsigned char digit) noexcept;
+    EditorAction command(ActionKind kind);
+    void appendDigit(unsigned char digit);
 
     std::optional<std::size_t> count_;
     std::optional<unsigned char> prefix_;

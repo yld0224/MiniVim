@@ -1,5 +1,6 @@
 #include "Buffer.hpp"
 
+#include <algorithm>
 #include <fstream>
 #include <stdexcept>
 #include <utility>
@@ -35,7 +36,7 @@ Buffer::Buffer(std::vector<std::string> lines, std::filesystem::path path) : lin
     ensureNonEmpty();
 }
 
-std::size_t Buffer::lineCount() const noexcept {
+std::size_t Buffer::lineCount() const {
     return lines_.size();
 }
 
@@ -43,7 +44,7 @@ const std::string& Buffer::line(std::size_t row) const {
     return lines_.at(row);
 }
 
-const std::filesystem::path& Buffer::path() const noexcept {
+const std::filesystem::path& Buffer::path() const {
     return path_;
 }
 
@@ -51,7 +52,7 @@ std::string Buffer::displayName() const {
     return path_.empty() ? "[No Name]" : path_.string();
 }
 
-bool Buffer::isModified() const noexcept {
+bool Buffer::isModified() const {
     return modified_;
 }
 
@@ -80,10 +81,39 @@ void Buffer::splitLine(std::size_t row, std::size_t column) {
     }
 
     const auto remainder = lineText.substr(column);
-    const auto next = lines_.begin() +
-                      static_cast<std::vector<std::string>::difference_type>(row + 1);
+    const auto next = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row + 1);
     lines_.insert(next, remainder);
     lines_[row].erase(column);
+    modified_ = true;
+}
+
+void Buffer::insertLine(std::size_t row, std::string lineText) {
+    const auto position = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row);
+    lines_.insert(position, std::move(lineText));
+    modified_ = true;
+}
+
+void Buffer::eraseLines(std::size_t row, std::size_t count) {
+    const auto erasedCount = std::min(count, lines_.size() - row);
+    if (erasedCount == lines_.size()) {
+        if (lines_.size() == 1 && lines_.front().empty()) {
+            return;
+        }
+        lines_.assign(1, std::string{});
+    } else {
+        const auto first = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row);
+        const auto last = first + static_cast<std::vector<std::string>::difference_type>(erasedCount);
+        lines_.erase(first, last);
+    }
+    modified_ = true;
+}
+
+void Buffer::eraseToLineEnd(std::size_t row, std::size_t column) {
+    auto& lineText = lines_.at(row);
+    if (column == lineText.size()) {
+        return;
+    }
+    lineText.erase(column);
     modified_ = true;
 }
 
@@ -93,8 +123,28 @@ void Buffer::joinWithNextLine(std::size_t row) {
     }
 
     lines_[row] += lines_[row + 1];
-    const auto next = lines_.begin() +
-                      static_cast<std::vector<std::string>::difference_type>(row + 1);
+    const auto next = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row + 1);
+    lines_.erase(next);
+    modified_ = true;
+}
+
+void Buffer::joinWithNextLineSeparated(std::size_t row) {
+    auto nextLine = lines_[row + 1];
+    const auto firstNonBlank = nextLine.find_first_not_of(" \t");
+    if (firstNonBlank == std::string::npos) {
+        nextLine.clear();
+    } else {
+        nextLine.erase(0, firstNonBlank);
+    }
+
+    auto joined = lines_[row];
+    if (!joined.empty() && !nextLine.empty() && joined.back() != ' ' && joined.back() != '\t') {
+        joined.push_back(' ');
+    }
+    joined += nextLine;
+    lines_[row] = std::move(joined);
+
+    const auto next = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row + 1);
     lines_.erase(next);
     modified_ = true;
 }
@@ -104,9 +154,30 @@ void Buffer::save() {
         throw std::runtime_error("no file name");
     }
 
-    std::ofstream file(path_, std::ios::binary | std::ios::trunc);
+    writeTo(path_);
+    modified_ = false;
+}
+
+void Buffer::saveAs(const std::filesystem::path& path) {
+    if (path.empty()) {
+        throw std::runtime_error("no file name");
+    }
+
+    writeTo(path);
+    path_ = path;
+    modified_ = false;
+}
+
+void Buffer::ensureNonEmpty() {
+    if (lines_.empty()) {
+        lines_.emplace_back();
+    }
+}
+
+void Buffer::writeTo(const std::filesystem::path& path) const {
+    std::ofstream file(path, std::ios::binary | std::ios::trunc);
     if (!file.is_open()) {
-        throw std::runtime_error("cannot write " + path_.string());
+        throw std::runtime_error("cannot write " + path.string());
     }
 
     for (std::size_t row = 0; row < lines_.size(); ++row) {
@@ -121,14 +192,7 @@ void Buffer::save() {
 
     file.close();
     if (!file) {
-        throw std::runtime_error("cannot write " + path_.string());
-    }
-    modified_ = false;
-}
-
-void Buffer::ensureNonEmpty() {
-    if (lines_.empty()) {
-        lines_.emplace_back();
+        throw std::runtime_error("cannot write " + path.string());
     }
 }
 

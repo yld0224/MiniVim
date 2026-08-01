@@ -32,8 +32,7 @@ struct KeyEvent {
     }
 
     constexpr bool isCharacter(char expected) const noexcept {
-        return code == KeyCode::Character &&
-               value == static_cast<unsigned char>(expected);
+        return code == KeyCode::Character && value == static_cast<unsigned char>(expected);
     }
 
     constexpr bool isControl(char expected) const noexcept {

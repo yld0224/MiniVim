@@ -18,14 +18,14 @@ public:
     void setNormalCursor(const Buffer& buffer, Position position);
     void setInsertCursor(const Buffer& buffer, Position position);
 
-    const Position& cursor() const noexcept;
-    const Viewport& viewport() const noexcept;
+    const Position& cursor() const ;
+    const Viewport& viewport() const ;
     std::size_t cursorScreenColumn(const Buffer& buffer) const;
 
 private:
-    static std::size_t lastColumn(const std::string& line) noexcept;
-    static std::size_t firstNonBlank(const std::string& line) noexcept;
-    static std::size_t scaledStep(std::size_t step, std::size_t count) noexcept;
+    static std::size_t lastColumn(const std::string& line) ;
+    static std::size_t firstNonBlank(const std::string& line);
+    static std::size_t scaledStep(std::size_t step, std::size_t count) ;
 
     void normalize(const Buffer& buffer);
     void setCursor(const Buffer& buffer, Position position, bool allowLineEnd);

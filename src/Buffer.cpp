@@ -75,34 +75,34 @@ void Buffer::eraseCharacter(std::size_t row, std::size_t column) {
 }
 
 void Buffer::splitLine(std::size_t row, std::size_t column) {
-    const auto& lineText = lines_.at(row);
+    auto& lineText = lines_.at(row);
     if (column > lineText.size()) {
         throw std::out_of_range("column out of range");
     }
 
-    const auto remainder = lineText.substr(column);
-    const auto next = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row + 1);
+    auto remainder = lineText.substr(column);
+    auto next = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row + 1);
     lines_.insert(next, remainder);
     lines_[row].erase(column);
     modified_ = true;
 }
 
 void Buffer::insertLine(std::size_t row, std::string lineText) {
-    const auto position = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row);
+    auto position = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row);
     lines_.insert(position, std::move(lineText));
     modified_ = true;
 }
 
 void Buffer::eraseLines(std::size_t row, std::size_t count) {
-    const auto erasedCount = std::min(count, lines_.size() - row);
+    auto erasedCount = std::min(count, lines_.size() - row);
     if (erasedCount == lines_.size()) {
         if (lines_.size() == 1 && lines_.front().empty()) {
             return;
         }
         lines_.assign(1, std::string{});
     } else {
-        const auto first = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row);
-        const auto last = first + static_cast<std::vector<std::string>::difference_type>(erasedCount);
+        auto first = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row);
+        auto last = first + static_cast<std::vector<std::string>::difference_type>(erasedCount);
         lines_.erase(first, last);
     }
     modified_ = true;
@@ -123,14 +123,14 @@ void Buffer::joinWithNextLine(std::size_t row) {
     }
 
     lines_[row] += lines_[row + 1];
-    const auto next = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row + 1);
+    auto next = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row + 1);
     lines_.erase(next);
     modified_ = true;
 }
 
 void Buffer::joinWithNextLineSeparated(std::size_t row) {
     auto nextLine = lines_[row + 1];
-    const auto firstNonBlank = nextLine.find_first_not_of(" \t");
+    auto firstNonBlank = nextLine.find_first_not_of(" \t");
     if (firstNonBlank == std::string::npos) {
         nextLine.clear();
     } else {
@@ -144,7 +144,7 @@ void Buffer::joinWithNextLineSeparated(std::size_t row) {
     joined += nextLine;
     lines_[row] = std::move(joined);
 
-    const auto next = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row + 1);
+    auto next = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row + 1);
     lines_.erase(next);
     modified_ = true;
 }

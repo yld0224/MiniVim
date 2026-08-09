@@ -333,10 +333,8 @@ bool Editor::saveBuffer(const std::filesystem::path& path) {
         return false;
     }
 
-    const auto lines = buffer_.lineCount();
-    message_ = "\"" + buffer_.displayName() + "\" " +
-               std::to_string(lines) +
-               (lines == 1 ? " line written" : " lines written");
+    auto lines = buffer_.lineCount();
+    message_ = "\"" + buffer_.displayName() + "\" " + std::to_string(lines) + (lines == 1 ? " line written" : " lines written");
     return true;
 }
 

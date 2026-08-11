@@ -88,13 +88,22 @@ void Buffer::splitLine(std::size_t row, std::size_t column) {
 }
 
 void Buffer::insertLine(std::size_t row, std::string lineText) {
+    if (row > lines_.size()) {
+        throw std::out_of_range("line out of range");
+    }
+
     auto position = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row);
     lines_.insert(position, std::move(lineText));
     modified_ = true;
 }
 
 void Buffer::eraseLines(std::size_t row, std::size_t count) {
+    if (row >= lines_.size()) {
+        throw std::out_of_range("line out of range");
+    }
+
     auto erasedCount = std::min(count, lines_.size() - row);
+    if (erasedCount == 0) {return;}
     if (erasedCount == lines_.size()) {
         if (lines_.size() == 1 && lines_.front().empty()) {
             return;
@@ -129,6 +138,10 @@ void Buffer::joinWithNextLine(std::size_t row) {
 }
 
 void Buffer::joinWithNextLineSeparated(std::size_t row) {
+    if (row >= lines_.size() - 1) {
+        throw std::out_of_range("line out of range");
+    }
+
     auto nextLine = lines_[row + 1];
     auto firstNonBlank = nextLine.find_first_not_of(" \t");
     if (firstNonBlank == std::string::npos) {

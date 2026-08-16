@@ -14,7 +14,6 @@ public:
 
     std::size_t GetLineCount() const;
     const std::string& GetLineAt(std::size_t row) const;
-    const std::filesystem::path& GetPath() const;
     std::string GetDisplayName() const;
     bool IsModified() const ;
 
@@ -22,7 +21,6 @@ public:
     void EraseCharacter(std::size_t row, std::size_t column);
     void SplitLine(std::size_t row, std::size_t column);
     void JoinLine(std::size_t row);
-    void InsertLine(std::size_t row, std::string line = {});
     void Save();
     void SaveAs(const std::filesystem::path& path);
 

@@ -4,10 +4,6 @@ namespace sjtu {
 
 EditorAction NormalModeParser::Feed(KeyEvent key) {
     
-    if (key.IsControl('q')) {
-        return {ActionKind::Quit, std::nullopt};
-    }
-
     if (key.code_ == KeyCode::Escape) {
         return {};
     }

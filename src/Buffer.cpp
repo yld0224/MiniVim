@@ -41,9 +41,6 @@ const std::string& Buffer::GetLineAt(std::size_t row) const {
     return lines_.at(row);
 }
 
-const std::filesystem::path& Buffer::GetPath() const {
-    return path_;
-}
 
 std::string Buffer::GetDisplayName() const {
     return path_.empty() ? "[No Name]" : path_.string();
@@ -92,16 +89,6 @@ void Buffer::JoinLine(std::size_t row) {
     lines_[row] += lines_[row + 1];
     auto next = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row + 1);
     lines_.erase(next);
-    modified_ = true;
-}
-
-void Buffer::InsertLine(std::size_t row, std::string lineText) {
-    if (row > lines_.size()) {
-        throw std::out_of_range("line out of range");
-    }
-
-    auto position = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row);
-    lines_.insert(position, std::move(lineText));
     modified_ = true;
 }
 

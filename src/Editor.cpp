@@ -84,9 +84,6 @@ void Editor::Execute(const EditorAction& action) {
         command_.clear();
         message_.clear();
         return;
-    case ActionKind::Quit:
-        running_ = false;
-        return;
     }
 }
 

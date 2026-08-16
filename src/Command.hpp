@@ -15,7 +15,6 @@ enum class ActionKind {
     InsertBefore,
     InsertAfter,
     EnterCommandLine,
-    Quit,
 };
 
 struct EditorAction {

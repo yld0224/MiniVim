@@ -5,7 +5,7 @@ namespace sjtu {
     
 namespace {
 
-void appendClearedLine(std::string& frame, std::string_view contents, std::size_t width, bool newline) {
+void AppendClearedLine(std::string& frame, std::string_view contents, std::size_t width, bool newline) {
     frame.append(contents.substr(0, width));
     frame += "\x1b[K";
     if (newline) {
@@ -13,85 +13,84 @@ void appendClearedLine(std::string& frame, std::string_view contents, std::size_
     }
 }
 
-std::string cursorSequence(std::size_t row, std::size_t column) {
+std::string CursorSequence(std::size_t row, std::size_t column) {
     return "\x1b[" + std::to_string(row) + ';' + std::to_string(column) + 'H';
 }
 
-} // Utility functions for rendering.
+}
 
-std::string Renderer::render(const Buffer& buffer, const Window& window, const RenderState& state) const {
-    auto& viewport = window.viewport();
-    auto width = std::max<std::size_t>(viewport.columns, 1);
+std::string Renderer::Render(const Buffer& buffer, const Window& window, const RenderState& state) const {
+    auto& viewport = window.GetViewport();
+    auto width = std::max<std::size_t>(viewport.columns_, 1);
 
     std::string frame;
-    frame.reserve((viewport.textRows + 2) * (width + 8));
+    frame.reserve((viewport.rows_ + 2) * (width + 8));
     frame += "\x1b[?25l";
     frame += "\x1b[H";
 
-    for (std::size_t screenRow = 0; screenRow < viewport.textRows; ++screenRow) {
-        auto bufferRow = viewport.top + screenRow;
-        if (bufferRow >= buffer.lineCount()) {
-            appendClearedLine(frame, "~", width, true);
+    for (std::size_t screen_row = 0; screen_row < viewport.rows_; ++screen_row) {
+        auto buffer_row = viewport.top_ + screen_row;
+        if (buffer_row >= buffer.GetLineCount()) {
+            AppendClearedLine(frame, "~", width, true);
             continue;
         }
 
-        auto rendered = text::expandForDisplay(buffer.line(bufferRow));
-        auto visible = viewport.left < rendered.size() ? std::string_view(rendered).substr(viewport.left, width) : std::string_view{};
-        appendClearedLine(frame, visible, width, true);
+        auto rendered = ExpandForDisplay(buffer.GetLineAt(buffer_row));
+        auto visible = viewport.left_ < rendered.size() ? std::string_view(rendered).substr(viewport.left_, width) : std::string_view{};
+        AppendClearedLine(frame, visible, width, true);
     }
 
     frame += "\x1b[7m";
-    frame += statusLine(buffer, window, state.mode);
+    frame += StatusLine(buffer, window, state.mode_);
     frame += "\x1b[m";
     frame += "\r\n";
 
-    std::string bottomLeft;
-    std::string bottomRight;
-    if (state.mode == Mode::CommandLine) {
-        bottomLeft = ":" + std::string(state.commandLine);
+    std::string bottom_left;
+    std::string bottom_right;
+    if (state.mode_ == Mode::CommandLine) {
+        bottom_left = ":" + std::string(state.command_);
     } else {
-        bottomLeft = std::string(state.message);
-        bottomRight = std::string(state.pendingKeys);
+        bottom_left = std::string(state.message_);
     }
-    appendClearedLine(frame, fitLine(std::move(bottomLeft), std::move(bottomRight), width), width, false);
+    AppendClearedLine(frame, FitLine(std::move(bottom_left), std::move(bottom_right), width), width, false);
 
-    std::size_t cursorRow = 1;
-    std::size_t cursorColumn = 1;
-    if (state.mode == Mode::CommandLine) {
-        cursorRow = viewport.textRows + 2;
-        cursorColumn = std::min<std::size_t>(state.commandLine.size() + 2, width);
+    std::size_t cursor_row{0};
+    std::size_t cursor_column{0};
+    if (state.mode_ == Mode::CommandLine) {
+        cursor_row = viewport.rows_ + 2;
+        cursor_column = std::min<std::size_t>(state.command_.size() + 2, width);
     } else {
-        cursorRow = window.cursor().row - viewport.top + 1;
-        cursorColumn = window.cursorScreenColumn(buffer) - viewport.left + 1;
-        cursorColumn = std::min(cursorColumn, width);
+        cursor_row = window.GetCursor().row_ - viewport.top_ + 1;
+        cursor_column = text::BufferColumnToRenderColumn(buffer.GetLineAt(window.GetCursor().row_), window.GetCursor().column_) - viewport.left_ + 1;
+        cursor_column = std::min(cursor_column, width);
     }
 
-    frame += cursorSequence(cursorRow, cursorColumn);
+    frame += CursorSequence(cursor_row, cursor_column);
     frame += "\x1b[?25h";
     return frame;
 }
 
-std::string Renderer::statusLine(const Buffer& buffer, const Window& window, Mode mode) {
-    auto left = " " + std::string(modeName(mode)) + "  " + text::expandForDisplay(buffer.displayName());
-    if (buffer.isModified()) {
+std::string Renderer::StatusLine(const Buffer& buffer, const Window& window, Mode mode) {
+    auto left = " " + std::string(GetModeName(mode)) + "  " + ExpandForDisplay(buffer.GetDisplayName());
+    if (buffer.IsModified()) {
         left += " [+]";
     }
-    auto right = std::to_string(window.cursor().row + 1) + ',' + std::to_string(window.cursor().column + 1) + ' ';
-    return fitLine(left, right, window.viewport().columns);
+    auto right = std::to_string(window.GetCursor().row_ + 1) + ',' + std::to_string(window.GetCursor().column_ + 1) + ' ';
+    return FitLine(left, right, window.GetViewport().columns_);
 }
 
-std::string Renderer::fitLine(std::string left, std::string right, std::size_t width) {
+std::string Renderer::FitLine(std::string left, std::string right, std::size_t width) {
     if (width == 0) { return {}; }
     if (right.size() >= width) { return right.substr(right.size() - width); }
 
-    auto leftLimit = width - right.size();
-    if (left.size() > leftLimit) { left.resize(leftLimit); }
-    left.append(leftLimit - left.size(), ' ');
+    auto left_limit = width - right.size();
+    if (left.size() > left_limit) { left.resize(left_limit); }
+    left.append(left_limit - left.size(), ' ');
     left += right;
     return left;
 }
 
-std::string_view Renderer::modeName(Mode mode)  {
+std::string Renderer::GetModeName(Mode mode)  {
     switch (mode) {
     case Mode::Normal:
         return "NORMAL";
@@ -103,4 +102,27 @@ std::string_view Renderer::modeName(Mode mode)  {
     return "UNKNOWN";
 }
 
+std::string Renderer::ExpandForDisplay(std::string_view line) {
+    std::string rendered;
+    rendered.reserve(line.size());
+
+    size_t column = 0;
+    for (char raw : line) {
+        auto value = static_cast<unsigned char>(raw);
+        if (value == '\t') {
+            size_t next = text::NextScreenColumn(column, value);
+            rendered.append(next - column, ' ');
+            column = next;
+        } else if (value < 0x20U || value == 0x7FU) {
+            rendered.push_back('^');
+            rendered.push_back( value == 0x7FU ? '?' : static_cast<char>(value + 0x40U));
+            column += 2;
+        } else {
+            rendered.push_back(raw);
+            ++column;
+        }
+    }
+
+    return rendered;
+}
 } // namespace sjtu

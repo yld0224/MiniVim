@@ -6,29 +6,24 @@
 #include "Window.hpp"
 
 #include <string>
-#include <string_view>
 
 namespace sjtu {
 
 struct RenderState {
-    Mode mode{Mode::Normal};
-    std::string_view commandLine;
-    std::string_view message;
-    std::string_view pendingKeys;
+    Mode mode_{Mode::Normal};
+    std::string command_;
+    std::string message_;
 };
 
-/***
- Renderer is deliberately free of terminal I/O and mutable editor state.
- It turns a snapshot into one ANSI frame that Terminal writes atomically.
-*/
 class Renderer {
 public:
-    std::string render(const Buffer& buffer, const Window& window, const RenderState& state) const;
+    std::string Render(const Buffer& buffer, const Window& window, const RenderState& state) const;
 
 private:
-    static std::string statusLine(const Buffer& buffer, const Window& window, Mode mode);
-    static std::string fitLine(std::string left, std::string right, std::size_t width);
-    static std::string_view modeName(Mode mode);
+    static std::string StatusLine(const Buffer& buffer, const Window& window, Mode mode);
+    static std::string FitLine(std::string left, std::string right, std::size_t width);
+    static std::string ExpandForDisplay(std::string_view line); 
+    static std::string GetModeName(Mode mode);
 };
 
 } // namespace sjtu

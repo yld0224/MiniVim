@@ -10,8 +10,6 @@
 
 namespace sjtu {
 
-// Owns the terminal's raw-mode lifetime. No editor state is allowed in this
-// platform boundary, which keeps the core logic testable without a TTY.
 class Terminal {
 public:
     Terminal();
@@ -22,18 +20,18 @@ public:
     Terminal(Terminal&&) = delete;
     Terminal& operator=(Terminal&&) = delete;
 
-    KeyEvent readKey();
-    ScreenSize screenSize();
-    void writeOutput(std::string_view output);
-    void clearScreen();
+    KeyEvent ReadKey();
+    ScreenSize GetScreenSize();
+    void WriteOutput(std::string_view output);
+    void ClearScreen();
 
 private:
-    unsigned char readByte();
-    std::optional<unsigned char> tryReadByte();
-    ScreenSize queryCursorPosition();
+    unsigned char ReadByte();
+    std::optional<unsigned char> TryReadByte();
+    ScreenSize QueryCursorPosition();
 
     termios original_{};
-    bool rawModeEnabled_{false};
+    bool raw_mode_enabled_{false};
 };
 
 } // namespace sjtu

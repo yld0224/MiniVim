@@ -6,20 +6,20 @@
 namespace sjtu {
 
 struct Position {
-    std::size_t row{0};
-    std::size_t column{0};
+    std::size_t row_{0};
+    std::size_t column_{0};
 };
 
 struct ScreenSize {
-    std::size_t rows{0};
-    std::size_t columns{0};
+    std::size_t rows_{0};
+    std::size_t columns_{0};
 };
 
 struct Viewport {
-    std::size_t top{0};
-    std::size_t left{0};
-    std::size_t textRows{1};
-    std::size_t columns{1};
+    std::size_t top_{0};
+    std::size_t left_{0};
+    std::size_t rows_{1};
+    std::size_t columns_{1};
 };
 
 enum class Mode {
@@ -33,21 +33,6 @@ enum class Motion {
     Down,
     Up,
     Right,
-    WordForward,
-    WordBackward,
-    WordEnd,
-    LineStart,
-    FirstNonBlank,
-    LineEnd,
-    FileStart,
-    FileEnd,
-    PageUp,
-    PageDown,
-    HalfPageUp,
-    HalfPageDown,
-    WindowTop,
-    WindowMiddle,
-    WindowBottom,
 };
 
 } // namespace sjtu

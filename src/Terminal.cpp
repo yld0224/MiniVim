@@ -11,43 +11,44 @@
 namespace sjtu {
 namespace {
 
-void throwSystemError(const char* operation) {
+void ThrowSystemError(const char* operation) {
     throw std::system_error(errno, std::generic_category(), operation);
 }
 
-} // namespace
+} 
 
 Terminal::Terminal() {
+
     if (::tcgetattr(STDIN_FILENO, &original_) == -1) {
-        throwSystemError("tcgetattr");
+        ThrowSystemError("tcgetattr");
     }
 
     termios raw = original_;
-    auto inputFlags = static_cast<tcflag_t>(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
-    auto outputFlags = static_cast<tcflag_t>(OPOST);
-    auto localFlags = static_cast<tcflag_t>(ECHO | ICANON | IEXTEN | ISIG);
+    tcflag_t inputFlags = BRKINT | ICRNL | INPCK | ISTRIP | IXON;
+    tcflag_t outputFlags = OPOST;
+    tcflag_t localFlags = ECHO | ICANON | IEXTEN | ISIG;
 
-    raw.c_iflag &= static_cast<tcflag_t>(~inputFlags);
-    raw.c_oflag &= static_cast<tcflag_t>(~outputFlags);
-    raw.c_cflag |= static_cast<tcflag_t>(CS8);
-    raw.c_lflag &= static_cast<tcflag_t>(~localFlags);
-    raw.c_cc[VMIN] = static_cast<cc_t>(0);
-    raw.c_cc[VTIME] = static_cast<cc_t>(1);
+    raw.c_iflag &= ~inputFlags;
+    raw.c_oflag &= ~outputFlags;
+    raw.c_cflag |= CS8;
+    raw.c_lflag &= ~localFlags;
+    raw.c_cc[VMIN] = 0;
+    raw.c_cc[VTIME] = 1;
 
     if (::tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
-        throwSystemError("tcsetattr");
+        ThrowSystemError("tcsetattr");
     }
-    rawModeEnabled_ = true;
+    raw_mode_enabled_ = true;
 }
 
 Terminal::~Terminal() noexcept {
-    if (rawModeEnabled_) {
-        static_cast<void>(::tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_));
+    if (raw_mode_enabled_) {
+        ::tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_);
     }
 }
 
-KeyEvent Terminal::readKey() {
-    auto first = readByte();
+KeyEvent Terminal::ReadKey() {
+    auto first = ReadByte();
     switch (first) {
     case '\r':
     case '\n':
@@ -58,21 +59,21 @@ KeyEvent Terminal::readKey() {
     case 0x1BU:
         break;
     default:
-        return KeyEvent::character(first);
+        return KeyEvent::Character(first);
     }
 
-    auto second = tryReadByte();
+    auto second = TryReadByte();
     if (!second.has_value()) {
         return {KeyCode::Escape, 0};
     }
-    auto third = tryReadByte();
+    auto third = TryReadByte();
     if (!third.has_value()) {
         return {KeyCode::Escape, 0};
     }
 
     if (*second == '[') {
         if (*third >= '0' && *third <= '9') {
-            auto fourth = tryReadByte();
+            auto fourth = TryReadByte();
             if (!fourth.has_value() || *fourth != '~') {
                 return {KeyCode::Escape, 0};
             }
@@ -123,17 +124,17 @@ KeyEvent Terminal::readKey() {
     return {KeyCode::Escape, 0};
 }
 
-ScreenSize Terminal::screenSize() {
+ScreenSize Terminal::GetScreenSize() {
     winsize size{};
     if (::ioctl(STDOUT_FILENO, TIOCGWINSZ, &size) == 0 && size.ws_row > 0 && size.ws_col > 0) {
         return {static_cast<std::size_t>(size.ws_row), static_cast<std::size_t>(size.ws_col)};
     }
 
-    writeOutput("\x1b[999C\x1b[999B");
-    return queryCursorPosition();
+    WriteOutput("\x1b[999C\x1b[999B");
+    return QueryCursorPosition();
 }
 
-void Terminal::writeOutput(std::string_view output) {
+void Terminal::WriteOutput(std::string_view output) {
     std::size_t written = 0;
     while (written < output.size()) {
         auto result = ::write(STDOUT_FILENO, output.data() + written, output.size() - written);
@@ -142,41 +143,41 @@ void Terminal::writeOutput(std::string_view output) {
             continue;
         }
         if (result == -1 && errno == EINTR) { continue; }
-        throwSystemError("write");
+        ThrowSystemError("write");
     }
 }
 
-void Terminal::clearScreen() {
-    writeOutput("\x1b[2J\x1b[H");
+void Terminal::ClearScreen() {
+    WriteOutput("\x1b[2J\x1b[H");
 }
 
-unsigned char Terminal::readByte() {
+unsigned char Terminal::ReadByte() {
     while (true) {
         unsigned char value = 0;
         auto result = ::read(STDIN_FILENO, &value, 1);
         if (result == 1) { return value; }
-        if (result == -1 && errno != EAGAIN && errno != EINTR) { throwSystemError("read"); }
+        if (result == -1 && errno != EAGAIN && errno != EINTR) { ThrowSystemError("read"); }
     }
 }
 
-std::optional<unsigned char> Terminal::tryReadByte() {
+std::optional<unsigned char> Terminal::TryReadByte() {
     while (true) {
         unsigned char value = 0;
         auto result = ::read(STDIN_FILENO, &value, 1);
         if (result == 1) { return value; }
         if (result == 0 || (result == -1 && errno == EAGAIN)) { return std::nullopt; }
         if (result == -1 && errno == EINTR) { continue; }
-        throwSystemError("read");
+        ThrowSystemError("read");
     }
 }
 
-ScreenSize Terminal::queryCursorPosition() {
-    writeOutput("\x1b[6n");
+ScreenSize Terminal::QueryCursorPosition() {
+    WriteOutput("\x1b[6n");
 
     char response[32]{};
     std::size_t length = 0;
     while (length + 1 < sizeof(response)) {
-        auto byte = tryReadByte();
+        auto byte = TryReadByte();
         if (!byte.has_value()) { break; }
         response[length] = static_cast<char>(*byte);
         if (response[length] == 'R') {

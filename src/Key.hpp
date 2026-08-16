@@ -3,7 +3,7 @@
 
 namespace sjtu {
 
-constexpr unsigned char controlKey(char key) noexcept {
+constexpr unsigned char ControlKey(char key) noexcept {
     return static_cast<unsigned char>(key) & 0x1FU;
 }
 
@@ -24,19 +24,19 @@ enum class KeyCode {
 };
 
 struct KeyEvent {
-    KeyCode code{KeyCode::Character};
-    unsigned char value{0};
+    KeyCode code_{KeyCode::Character};
+    unsigned char value_{0};
 
-    static constexpr KeyEvent character(unsigned char value) noexcept {
+    static constexpr KeyEvent Character(unsigned char value) noexcept {
         return {KeyCode::Character, value};
     }
 
-    constexpr bool isCharacter(char expected) const noexcept {
-        return code == KeyCode::Character && value == static_cast<unsigned char>(expected);
+    constexpr bool IsCharacter(char expected) const noexcept {
+        return code_ == KeyCode::Character && value_ == static_cast<unsigned char>(expected);
     }
 
-    constexpr bool isControl(char expected) const noexcept {
-        return code == KeyCode::Character && value == controlKey(expected);
+    constexpr bool IsControl(char expected) const noexcept {
+        return code_ == KeyCode::Character && value_ == ControlKey(expected);
     }
 };
 

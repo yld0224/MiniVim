@@ -1,15 +1,12 @@
-#include "Buffer.hpp"
-
-#include <algorithm>
 #include <fstream>
-#include <stdexcept>
-#include <utility>
+
+#include "Buffer.hpp"
 
 namespace sjtu {
 
 Buffer::Buffer(const std::filesystem::path& path) : path_(path) {
     if (path_.empty()) {
-        ensureNonEmpty();
+        EnsureNonEmpty();
         return;
     }
 
@@ -18,63 +15,63 @@ Buffer::Buffer(const std::filesystem::path& path) : path_(path) {
         throw std::runtime_error("cannot open " + path_.string());
     }
 
-    std::string lineText;
-    while (std::getline(file, lineText)) {
-        endsWithNewline_ = !file.eof();
-        if (!lineText.empty() && lineText.back() == '\r') {
-            lineText.pop_back();
+    std::string line;
+    while (std::getline(file, line)) {
+        ends_with_newline_ = !file.eof();
+        if (!line.empty() && line.back() == '\r') {
+            line.pop_back();
         }
-        lines_.push_back(std::move(lineText));
+        lines_.push_back(std::move(line));
     }
     if (file.bad()) {
         throw std::runtime_error("cannot read " + path_.string());
     }
-    ensureNonEmpty();
+    EnsureNonEmpty();
 }
 
 Buffer::Buffer(std::vector<std::string> lines, std::filesystem::path path) : lines_(std::move(lines)), path_(std::move(path)) {
-    ensureNonEmpty();
+    EnsureNonEmpty();
 }
 
-std::size_t Buffer::lineCount() const {
+std::size_t Buffer::GetLineCount() const {
     return lines_.size();
 }
 
-const std::string& Buffer::line(std::size_t row) const {
+const std::string& Buffer::GetLineAt(std::size_t row) const {
     return lines_.at(row);
 }
 
-const std::filesystem::path& Buffer::path() const {
+const std::filesystem::path& Buffer::GetPath() const {
     return path_;
 }
 
-std::string Buffer::displayName() const {
+std::string Buffer::GetDisplayName() const {
     return path_.empty() ? "[No Name]" : path_.string();
 }
 
-bool Buffer::isModified() const {
+bool Buffer::IsModified() const {
     return modified_;
 }
 
-void Buffer::insertCharacter(std::size_t row, std::size_t column, char value) {
-    auto& lineText = lines_.at(row);
-    if (column > lineText.size()) {
+void Buffer::InsertCharacter(std::size_t row, std::size_t column, char value) {
+    auto& line = lines_.at(row);
+    if (column > line.size()) {
         throw std::out_of_range("column out of range");
     }
-    lineText.insert(column, 1, value);
+    line.insert(column, 1, value);
     modified_ = true;
 }
 
-void Buffer::eraseCharacter(std::size_t row, std::size_t column) {
-    auto& lineText = lines_.at(row);
-    if (column >= lineText.size()) {
+void Buffer::EraseCharacter(std::size_t row, std::size_t column) {
+    auto& line = lines_.at(row);
+    if (column >= line.size()) {
         throw std::out_of_range("column out of range");
     }
-    lineText.erase(column, 1);
+    line.erase(column, 1);
     modified_ = true;
 }
 
-void Buffer::splitLine(std::size_t row, std::size_t column) {
+void Buffer::SplitLine(std::size_t row, std::size_t column) {
     auto& lineText = lines_.at(row);
     if (column > lineText.size()) {
         throw std::out_of_range("column out of range");
@@ -87,46 +84,7 @@ void Buffer::splitLine(std::size_t row, std::size_t column) {
     modified_ = true;
 }
 
-void Buffer::insertLine(std::size_t row, std::string lineText) {
-    if (row > lines_.size()) {
-        throw std::out_of_range("line out of range");
-    }
-
-    auto position = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row);
-    lines_.insert(position, std::move(lineText));
-    modified_ = true;
-}
-
-void Buffer::eraseLines(std::size_t row, std::size_t count) {
-    if (row >= lines_.size()) {
-        throw std::out_of_range("line out of range");
-    }
-
-    auto erasedCount = std::min(count, lines_.size() - row);
-    if (erasedCount == 0) {return;}
-    if (erasedCount == lines_.size()) {
-        if (lines_.size() == 1 && lines_.front().empty()) {
-            return;
-        }
-        lines_.assign(1, std::string{});
-    } else {
-        auto first = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row);
-        auto last = first + static_cast<std::vector<std::string>::difference_type>(erasedCount);
-        lines_.erase(first, last);
-    }
-    modified_ = true;
-}
-
-void Buffer::eraseToLineEnd(std::size_t row, std::size_t column) {
-    auto& lineText = lines_.at(row);
-    if (column == lineText.size()) {
-        return;
-    }
-    lineText.erase(column);
-    modified_ = true;
-}
-
-void Buffer::joinWithNextLine(std::size_t row) {
+void Buffer::JoinLine(std::size_t row) {
     if (row + 1 >= lines_.size()) {
         throw std::out_of_range("line out of range");
     }
@@ -137,57 +95,42 @@ void Buffer::joinWithNextLine(std::size_t row) {
     modified_ = true;
 }
 
-void Buffer::joinWithNextLineSeparated(std::size_t row) {
-    if (row >= lines_.size() - 1) {
+void Buffer::InsertLine(std::size_t row, std::string lineText) {
+    if (row > lines_.size()) {
         throw std::out_of_range("line out of range");
     }
 
-    auto nextLine = lines_[row + 1];
-    auto firstNonBlank = nextLine.find_first_not_of(" \t");
-    if (firstNonBlank == std::string::npos) {
-        nextLine.clear();
-    } else {
-        nextLine.erase(0, firstNonBlank);
-    }
-
-    auto joined = lines_[row];
-    if (!joined.empty() && !nextLine.empty() && joined.back() != ' ' && joined.back() != '\t') {
-        joined.push_back(' ');
-    }
-    joined += nextLine;
-    lines_[row] = std::move(joined);
-
-    auto next = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row + 1);
-    lines_.erase(next);
+    auto position = lines_.begin() + static_cast<std::vector<std::string>::difference_type>(row);
+    lines_.insert(position, std::move(lineText));
     modified_ = true;
 }
 
-void Buffer::save() {
+void Buffer::Save() {
     if (path_.empty()) {
         throw std::runtime_error("no file name");
     }
 
-    writeTo(path_);
+    WriteTo(path_);
     modified_ = false;
 }
 
-void Buffer::saveAs(const std::filesystem::path& path) {
+void Buffer::SaveAs(const std::filesystem::path& path) {
     if (path.empty()) {
         throw std::runtime_error("no file name");
     }
 
-    writeTo(path);
+    WriteTo(path);
     path_ = path;
     modified_ = false;
 }
 
-void Buffer::ensureNonEmpty() {
+void Buffer::EnsureNonEmpty() {
     if (lines_.empty()) {
         lines_.emplace_back();
     }
 }
 
-void Buffer::writeTo(const std::filesystem::path& path) const {
+void Buffer::WriteTo(const std::filesystem::path& path) const {
     std::ofstream file(path, std::ios::binary | std::ios::trunc);
     if (!file.is_open()) {
         throw std::runtime_error("cannot write " + path.string());
@@ -199,7 +142,7 @@ void Buffer::writeTo(const std::filesystem::path& path) const {
         }
         file << lines_[row];
     }
-    if (endsWithNewline_) {
+    if (ends_with_newline_) {
         file.put('\n');
     }
 

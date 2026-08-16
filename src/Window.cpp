@@ -3,377 +3,95 @@
 
 #include <algorithm>
 #include <cctype>
-#include <limits>
 
 namespace sjtu {
-namespace {
 
-enum class WordClass {
-    Whitespace,
-    Word,
-    Punctuation,
-};
 
-WordClass wordClass(char rawValue) {
-    auto value = static_cast<unsigned char>(rawValue);
-    if (std::isspace(value) != 0) {
-        return WordClass::Whitespace;
-    }
-    if (std::isalnum(value) != 0 || value == '_') {
-        return WordClass::Word;
-    }
-    return WordClass::Punctuation;
+void Window::Resize(ScreenSize terminal_size) {
+    viewport_.columns_ = std::max<size_t>(terminal_size.columns_, 1);
+    viewport_.rows_ = terminal_size.rows_ > 2 ? terminal_size.rows_ - 2 : 1;
 }
 
-std::size_t firstNonWhitespace(const std::string& line, std::size_t start) {
-    auto column = std::min(start, line.size());
-    while (column < line.size() && wordClass(line[column]) == WordClass::Whitespace) {
-        ++column;
-    }
-    return column;
-}
-
-} // namespace
-
-void Window::resize(ScreenSize terminalSize) {
-    viewport_.columns = std::max<std::size_t>(terminalSize.columns, 1);
-    viewport_.textRows = terminalSize.rows > 2 ? terminalSize.rows - 2 : 1;
-}
-
-void Window::applyMotion(const Buffer& buffer, Motion motion, std::optional<std::size_t> requestedCount) {
-    auto count = std::max<std::size_t>(requestedCount.value_or(1), 1);
-
+void Window::ApplyMotion(const Buffer& buffer, Motion motion) {
     switch (motion) {
-    case Motion::Left:
-        moveLeft(buffer, count);
-        break;
-    case Motion::Right:
-        moveRight(buffer, count);
-        break;
-    case Motion::WordForward:
-        moveWordForward(buffer, count);
-        break;
-    case Motion::WordBackward:
-        moveWordBackward(buffer, count);
-        break;
-    case Motion::WordEnd:
-        moveWordEnd(buffer, count);
-        break;
-    case Motion::Up:
-        moveUp(buffer, count);
-        break;
-    case Motion::Down:
-        moveDown(buffer, count);
-        break;
-    case Motion::LineStart:
-        cursor_.column = 0;
-        updateDesiredColumn(buffer);
-        break;
-    case Motion::FirstNonBlank:
-        cursor_.column = firstNonBlank(buffer.line(cursor_.row));
-        updateDesiredColumn(buffer);
-        break;
-    case Motion::LineEnd:
-        if (count > 1) {
-            moveDown(buffer, count - 1);
+        case Motion::Left:
+            MoveLeft(buffer, 1);
+            break;
+        case Motion::Right:
+            MoveRight(buffer, 1);
+            break;
+        case Motion::Up:
+            MoveUp(buffer, 1);
+            break;
+        case Motion::Down:
+            MoveDown(buffer, 1);
+            break;
         }
-        cursor_.column = lastColumn(buffer.line(cursor_.row));
-        updateDesiredColumn(buffer);
-        break;
-    case Motion::FileStart: {
-        auto target = requestedCount.has_value() ? count - 1 : 0;
-        cursor_.row = std::min(target, buffer.lineCount() - 1);
-        moveToLineEdge(buffer, true);
-        break;
-    }
-    case Motion::FileEnd: {
-        auto target = requestedCount.has_value() ? count - 1 : buffer.lineCount() - 1;
-        cursor_.row = std::min(target, buffer.lineCount() - 1);
-        moveToLineEdge(buffer, true);
-        break;
-    }
-    case Motion::PageUp:
-        moveUp(buffer, scaledStep(viewport_.textRows, count));
-        break;
-    case Motion::PageDown:
-        moveDown(buffer, scaledStep(viewport_.textRows, count));
-        break;
-    case Motion::HalfPageUp:
-        moveUp(buffer, scaledStep(std::max<std::size_t>(viewport_.textRows / 2, 1),count));
-        break;
-    case Motion::HalfPageDown:
-        moveDown(buffer,scaledStep(std::max<std::size_t>(viewport_.textRows / 2, 1), count));
-        break;
-    case Motion::WindowTop: {
-        auto offset = requestedCount.has_value() ? count - 1 : 0;
-        cursor_.row = std::min(viewport_.top + offset, buffer.lineCount() - 1);
-        moveToLineEdge(buffer, true);
-        break;
-    }
-    case Motion::WindowMiddle: {
-        auto visibleBottom = std::min(viewport_.top + viewport_.textRows - 1, buffer.lineCount() - 1);
-        cursor_.row = viewport_.top + (visibleBottom - viewport_.top) / 2;
-        moveToLineEdge(buffer, true);
-        break;
-    }
-    case Motion::WindowBottom: {
-        auto visibleBottom = std::min(viewport_.top + viewport_.textRows - 1, buffer.lineCount() - 1);
-        auto offset = requestedCount.has_value() ? count - 1 : 0;
-        cursor_.row = offset > visibleBottom - viewport_.top ? viewport_.top : visibleBottom - offset;
-        moveToLineEdge(buffer, true);
-        break;
-    }
-    }
 
-    normalize(buffer);
-    ensureCursorVisible(buffer);
+    cursor_.row_ = std::min(cursor_.row_, buffer.GetLineCount() - 1);
+    cursor_.column_ = std::min(cursor_.column_, text::LastColumn(buffer.GetLineAt(cursor_.row_)));
+    EnsureCursorVisible(buffer);
 }
 
-void Window::ensureCursorVisible(const Buffer& buffer) {
+void Window::EnsureCursorVisible(const Buffer& buffer) {
 
-    if (cursor_.row < viewport_.top) {
-        viewport_.top = cursor_.row;
-    } else if (cursor_.row >= viewport_.top + viewport_.textRows) {
-        viewport_.top = cursor_.row - viewport_.textRows + 1;
+    if (cursor_.row_ < viewport_.top_) {
+        viewport_.top_ = cursor_.row_;
+    } else if (cursor_.row_ >= viewport_.top_ + viewport_.rows_) {
+        viewport_.top_ = cursor_.row_ - viewport_.rows_ + 1;
     }
 
-    size_t screenColumn = cursorScreenColumn(buffer);
-    if (screenColumn < viewport_.left) {
-        viewport_.left = screenColumn;
-    } else if (screenColumn >= viewport_.left + viewport_.columns) {
-        viewport_.left = screenColumn - viewport_.columns + 1;
+    size_t screen_column = text::BufferColumnToRenderColumn(buffer.GetLineAt(cursor_.row_), cursor_.column_);
+    if (screen_column < viewport_.left_) {
+        viewport_.left_ = screen_column;
+    } else if (screen_column >= viewport_.left_ + viewport_.columns_) {
+        viewport_.left_ = screen_column - viewport_.columns_ + 1;
     }
 }
 
-void Window::setNormalCursor(const Buffer& buffer, Position position) {
-    setCursor(buffer, position, false);
-}
-
-void Window::setInsertCursor(const Buffer& buffer, Position position) {
-    setCursor(buffer, position, true);
-}
-
-const Position& Window::cursor() const {
+const Position& Window::GetCursor() const {
     return cursor_;
 }
 
-const Viewport& Window::viewport() const {
+const Viewport& Window::GetViewport() const {
     return viewport_;
 }
 
-std::size_t Window::cursorScreenColumn(const Buffer& buffer) const {
-    return text::screenColumn(buffer.line(cursor_.row), cursor_.column);
+
+void Window::SetCursor(const Buffer& buffer, Position position, bool allow_line_end) {
+    cursor_.row_ = std::min(position.row_, buffer.GetLineCount() - 1);
+    auto& line = buffer.GetLineAt(cursor_.row_);
+    auto maximum = allow_line_end ? line.size() : text::LastColumn(line);
+    cursor_.column_ = std::min(position.column_, maximum);
+    
+    desired_screen_column_ = text::BufferColumnToRenderColumn(buffer.GetLineAt(cursor_.row_), cursor_.column_);
+    EnsureCursorVisible(buffer);
 }
 
-std::size_t Window::lastColumn(const std::string& line) {
-    return line.empty() ? 0 : line.size() - 1;
+
+void Window::MoveLeft(const Buffer& buffer, std::size_t count) {
+    cursor_.column_ = count > cursor_.column_ ? 0 : cursor_.column_ - count;
+    desired_screen_column_ = text::BufferColumnToRenderColumn(buffer.GetLineAt(cursor_.row_), cursor_.column_);
 }
 
-std::size_t Window::firstNonBlank(const std::string& line) {
-    size_t position = line.find_first_not_of(" \t");
-    return position == std::string::npos ? 0 : position;
+void Window::MoveRight(const Buffer& buffer, std::size_t count) {
+    size_t maximum = text::LastColumn(buffer.GetLineAt(cursor_.row_));
+    cursor_.column_ = count > maximum - cursor_.column_ ? maximum : cursor_.column_ + count;
+    desired_screen_column_ = text::BufferColumnToRenderColumn(buffer.GetLineAt(cursor_.row_), cursor_.column_);
 }
 
-std::size_t Window::scaledStep(std::size_t step, std::size_t count) {
-    if (step == 0 || count == 0) {
-        return 0;
-    }
-    if (count > std::numeric_limits<std::size_t>::max() / step) {
-        return std::numeric_limits<std::size_t>::max();
-    }
-    return step * count;
+
+void Window::MoveUp(const Buffer& buffer, std::size_t count) {
+    size_t target = count > cursor_.row_ ? 0 : cursor_.row_ - count;
+    cursor_.row_ = target;
+    cursor_.column_ = text::RenderColumnToBufferColumn(buffer.GetLineAt(cursor_.row_), desired_screen_column_);
 }
 
-void Window::normalize(const Buffer& buffer) {
-    cursor_.row = std::min(cursor_.row, buffer.lineCount() - 1);
-    cursor_.column = std::min(cursor_.column, lastColumn(buffer.line(cursor_.row)));
-}
-
-void Window::setCursor(const Buffer& buffer, Position position, bool allowLineEnd) {
-    cursor_.row = std::min(position.row, buffer.lineCount() - 1);
-    auto& lineText = buffer.line(cursor_.row);
-    auto maximum = allowLineEnd ? lineText.size() : lastColumn(lineText);
-    cursor_.column = std::min(position.column, maximum);
-    updateDesiredColumn(buffer);
-    ensureCursorVisible(buffer);
-}
-
-void Window::updateDesiredColumn(const Buffer& buffer) {
-    desiredScreenColumn_ = cursorScreenColumn(buffer);
-}
-
-void Window::moveLeft(const Buffer& buffer, std::size_t count) {
-    cursor_.column = count > cursor_.column ? 0 : cursor_.column - count;
-    updateDesiredColumn(buffer);
-}
-
-void Window::moveRight(const Buffer& buffer, std::size_t count) {
-    size_t maximum = lastColumn(buffer.line(cursor_.row));
-    cursor_.column = count > maximum - cursor_.column ? maximum : cursor_.column + count;
-    updateDesiredColumn(buffer);
-}
-
-void Window::moveWordForward(const Buffer& buffer, std::size_t count) {
-    for (std::size_t step = 0; step < count; ++step) {
-        Position original = cursor_;
-        auto& currentLine = buffer.line(cursor_.row);
-        bool found = false;
-
-        if (!currentLine.empty()) {
-            auto column = std::min(cursor_.column, currentLine.size() - 1);
-            WordClass initialClass = wordClass(currentLine[column]);
-            ++column;
-
-            if (initialClass != WordClass::Whitespace) {
-                while (column < currentLine.size() && wordClass(currentLine[column]) == initialClass) {
-                    ++column;
-                }
-            }
-            column = firstNonWhitespace(currentLine, column);
-
-            if (column < currentLine.size()) {
-                cursor_.column = column;
-                found = true;
-            } else if (cursor_.column + 1 < currentLine.size() && cursor_.row + 1 == buffer.lineCount()) {
-                cursor_.column = currentLine.size() - 1;
-                found = true;
-            }
-        }
-
-        if (!found) {
-            for (std::size_t row = cursor_.row + 1; row < buffer.lineCount(); ++row) {
-                auto& lineText = buffer.line(row);
-                auto column = firstNonWhitespace(lineText, 0);
-                if (column < lineText.size()) {
-                    cursor_ = {row, column};
-                    found = true;
-                    break;
-                }
-            }
-        }
-
-        if (!found || (cursor_.row == original.row && cursor_.column == original.column)) { 
-            break;
-        }
-    }
-    updateDesiredColumn(buffer);
-}
-
-void Window::moveWordBackward(const Buffer& buffer, std::size_t count) {
-    for (std::size_t step = 0; step < count; ++step) {
-        Position original = cursor_;
-        size_t row = cursor_.row;
-        std::optional<std::size_t> column;
-
-        auto& currentLine = buffer.line(row);
-        if (!currentLine.empty() && cursor_.column > 0) {
-            column = std::min(cursor_.column - 1, currentLine.size() - 1);
-        }
-
-        while (true) {
-            if (column.has_value()) {
-                while (wordClass(buffer.line(row)[*column]) == WordClass::Whitespace) {
-                    if (*column == 0) {
-                        column.reset();
-                        break;
-                    }
-                    --*column;
-                }
-
-                if (column.has_value()) {
-                    WordClass targetClass = wordClass(buffer.line(row)[*column]);
-                    while (*column > 0 && wordClass(buffer.line(row)[*column - 1]) == targetClass) {
-                        --*column;
-                    }
-                    cursor_ = {row, *column};
-                    break;
-                }
-            }
-
-            if (row == 0) { break; }
-            --row;
-            auto& previousLine = buffer.line(row);
-            if (!previousLine.empty()) {
-                column = previousLine.size() - 1;
-            }
-        }
-
-        if (cursor_.row == original.row &&
-            cursor_.column == original.column) {
-            break;
-        }
-    }
-    updateDesiredColumn(buffer);
-}
-
-void Window::moveWordEnd(const Buffer& buffer, std::size_t count) {
-    for (std::size_t step = 0; step < count; ++step) {
-        Position original = cursor_;
-        size_t row = cursor_.row;
-        auto& currentLine = buffer.line(row);
-        std::size_t searchColumn = 0;
-        bool found = false;
-
-        if (!currentLine.empty()) {
-            auto column = std::min(cursor_.column, currentLine.size() - 1);
-            WordClass currentClass = wordClass(currentLine[column]);
-
-            if (currentClass != WordClass::Whitespace) {
-                auto end = column;
-                while (end + 1 < currentLine.size() && wordClass(currentLine[end + 1]) == currentClass) {
-                    ++end;
-                }
-                if (end > column) {
-                    cursor_.column = end;
-                    found = true;
-                }
-            }
-            searchColumn = column + 1;
-        }
-
-        while (!found && row < buffer.lineCount()) {
-            auto& lineText = buffer.line(row);
-            size_t start = firstNonWhitespace(lineText, searchColumn);
-            if (start < lineText.size()) {
-                WordClass targetClass = wordClass(lineText[start]);
-                size_t end = start;
-                while (end + 1 < lineText.size() && wordClass(lineText[end + 1]) == targetClass) {
-                    ++end;
-                }
-                cursor_ = {row, end};
-                found = true;
-                break;
-            }
-            ++row;
-            searchColumn = 0;
-        }
-
-        if (!found || (cursor_.row == original.row && cursor_.column == original.column)) {
-            break;
-        }
-    }
-    updateDesiredColumn(buffer);
-}
-
-void Window::moveUp(const Buffer& buffer, std::size_t count) {
-    size_t target = count > cursor_.row ? 0 : cursor_.row - count;
-    moveVerticallyTo(buffer, target);
-}
-
-void Window::moveDown(const Buffer& buffer, std::size_t count) {
-    size_t maximum = buffer.lineCount() - 1;
-    auto target = count > maximum - cursor_.row ? maximum : cursor_.row + count;
-    moveVerticallyTo(buffer, target);
-}
-
-void Window::moveVerticallyTo(const Buffer& buffer, std::size_t row) {
-    cursor_.row = row;
-    cursor_.column = text::bufferColumn(buffer.line(cursor_.row), desiredScreenColumn_);
-}
-
-void Window::moveToLineEdge(const Buffer& buffer, bool firstNonBlankOnly) {
-    cursor_.column = firstNonBlankOnly ? firstNonBlank(buffer.line(cursor_.row)) : 0;
-    updateDesiredColumn(buffer);
+void Window::MoveDown(const Buffer& buffer, std::size_t count) {
+    size_t maximum = buffer.GetLineCount() - 1;
+    auto target = count > maximum - cursor_.row_ ? maximum : cursor_.row_ + count;
+    cursor_.row_ = target;
+    cursor_.column_ = text::RenderColumnToBufferColumn(buffer.GetLineAt(cursor_.row_), desired_screen_column_);
 }
 
 } // namespace sjtu

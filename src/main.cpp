@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
     const std::filesystem::path path = argc == 2 ? argv[1] : "";
     try {
         sjtu::Editor editor(path);
-        editor.run();
+        editor.Run();
     } catch (const std::exception& error) {
         std::cerr << "MiniVim: " << error.what() << '\n';
         return 1;

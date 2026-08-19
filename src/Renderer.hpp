@@ -20,10 +20,7 @@ public:
     std::string Render(const Buffer& buffer, const Window& window, const RenderState& state) const;
 
 private:
-    static std::string StatusLine(const Buffer& buffer, const Window& window, Mode mode);
-    static std::string FitLine(std::string left, std::string right, std::size_t width);
     static std::string ExpandForDisplay(std::string_view line); 
-    static std::string GetModeName(Mode mode);
 };
 
 } // namespace sjtu

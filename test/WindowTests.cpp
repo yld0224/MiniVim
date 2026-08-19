@@ -17,10 +17,10 @@ void CheckPosition(const sjtu::Window& window, std::size_t row,
     CHECK_EQ(window.GetCursor().column_, column);
 }
 
-void ResizeReservesStatusAndCommandRows() {
+void ResizeReservesOneMessageOrCommandRow() {
     sjtu::Window window;
     window.Resize({24, 80});
-    CHECK_EQ(window.GetViewport().rows_, 22U);
+    CHECK_EQ(window.GetViewport().rows_, 23U);
     CHECK_EQ(window.GetViewport().columns_, 80U);
 
     window.Resize({2, 0});
@@ -118,7 +118,7 @@ void EnsureCursorVisibleTracksVerticalAndHorizontalOffsets() {
 
 int main() {
     return test::Run({
-        {"Resize reserves status and command rows", ResizeReservesStatusAndCommandRows},
+        {"Resize reserves one message or command row", ResizeReservesOneMessageOrCommandRow},
         {"SetCursor distinguishes Normal and Insert bounds", SetCursorDistinguishesNormalAndInsertBounds},
         {"horizontal motions stop at Normal-mode bounds", HorizontalMotionsStopAtNormalModeLineBounds},
         {"vertical motions clamp and remember desired column", VerticalMotionsClampAndRememberTheDesiredColumn},

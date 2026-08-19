@@ -9,7 +9,7 @@ namespace sjtu {
 
 void Window::Resize(ScreenSize terminal_size) {
     viewport_.columns_ = std::max<size_t>(terminal_size.columns_, 1);
-    viewport_.rows_ = terminal_size.rows_ > 2 ? terminal_size.rows_ - 2 : 1;
+    viewport_.rows_ = terminal_size.rows_ > 1 ? terminal_size.rows_ - 1 : 1;
 }
 
 void Window::ApplyMotion(const Buffer& buffer, Motion motion) {

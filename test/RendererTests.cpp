@@ -42,25 +42,18 @@ void TextRowsExpandBytesAndMarkRowsPastTheBuffer() {
     CHECK_CONTAINS(frame, "~\x1b[K\r\n");
 }
 
-void StatusShowsModeNameFileDirtyFlagAndPosition() {
+void RendererDoesNotAddASeparateStatusLine() {
     auto buffer = Lines({"alpha", "beta"}, "sample.txt");
     auto window = MakeWindow(buffer, {6, 60}, {1, 2});
     const sjtu::Renderer renderer;
 
-    const auto normal = renderer.Render(
-        buffer, window, {sjtu::Mode::Normal, {}, {}});
-    CHECK_CONTAINS(normal, " NORMAL  sample.txt");
-    CHECK_CONTAINS(normal, "2,3 ");
-    CHECK(normal.find("[+]") == std::string::npos);
-
     buffer.InsertCharacter(0, 5, '!');
-    const auto insert = renderer.Render(
-        buffer, window, {sjtu::Mode::Insert, {}, {}});
-    CHECK_CONTAINS(insert, " INSERT  sample.txt [+]");
-
-    const auto command = renderer.Render(
-        buffer, window, {sjtu::Mode::CommandLine, {}, {}});
-    CHECK_CONTAINS(command, " COMMAND  sample.txt [+]");
+    const auto frame = renderer.Render(
+        buffer, window, {sjtu::Mode::Normal, {}, {}});
+    CHECK(frame.find("NORMAL") == std::string::npos);
+    CHECK(frame.find("sample.txt") == std::string::npos);
+    CHECK(frame.find("[+]") == std::string::npos);
+    CHECK(frame.find("\x1b[7m") == std::string::npos);
 }
 
 void BottomAreaShowsMessagesOrTheCommandBuffer() {
@@ -72,13 +65,18 @@ void BottomAreaShowsMessagesOrTheCommandBuffer() {
         buffer, window, {sjtu::Mode::Normal, {}, "saved"});
     CHECK_CONTAINS(normal, "saved");
 
+    const auto insert = renderer.Render(
+        buffer, window, {sjtu::Mode::Insert, {}, {}});
+    CHECK_CONTAINS(insert, "-- INSERT --");
+
     const auto command = renderer.Render(
         buffer, window,
         {sjtu::Mode::CommandLine, "wq output.txt", "hidden"});
     CHECK_CONTAINS(command, ":wq output.txt");
     CHECK(command.find("hidden") == std::string::npos);
+    CHECK(command.find("-- INSERT --") == std::string::npos);
 
-    const auto cursor_row = window.GetViewport().rows_ + 2;
+    const auto cursor_row = window.GetViewport().rows_ + 1;
     const auto cursor_column = std::string("wq output.txt").size() + 2;
     CHECK_CONTAINS(command,
                    "\x1b[" + std::to_string(cursor_row) + ';' +
@@ -115,7 +113,7 @@ int main() {
     return test::Run({
         {"frame controls cursor visibility and position", FrameControlsCursorVisibilityAndPosition},
         {"text rows expand bytes and mark rows past the Buffer", TextRowsExpandBytesAndMarkRowsPastTheBuffer},
-        {"status shows mode, file, dirty flag, and position", StatusShowsModeNameFileDirtyFlagAndPosition},
+        {"Renderer does not add a separate status line", RendererDoesNotAddASeparateStatusLine},
         {"bottom area shows either messages or command input", BottomAreaShowsMessagesOrTheCommandBuffer},
         {"horizontal viewport slices expanded text", HorizontalViewportSlicesExpandedText},
         {"Render does not mutate its inputs", RenderingDoesNotMutateItsInputs},

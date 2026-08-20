@@ -1,0 +1,4 @@
+<X>
+iwrite-through-command<ESC>
+<X>
+:wq input.txt<CR>

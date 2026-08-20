@@ -9,3 +9,6 @@ MiniVim
 *.d
 #compile
 compile_commands.json
+
+#test tools
+vtemu/

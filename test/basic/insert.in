@@ -1,0 +1,7 @@
+<X>
+iabcdef<ESC>
+<X>
+hhh
+i<CR>middle<ESC>
+<X>
+:wq<CR>

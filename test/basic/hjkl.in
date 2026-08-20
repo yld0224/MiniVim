@@ -1,0 +1,16 @@
+<X>
+iabcde<CR>x<CR>uvwxyz<ESC>
+<X>
+kk
+iA<ESC>
+<X>
+jj
+iB<ESC>
+<X>
+llll
+aC<ESC>
+<X>
+hhhhhhhh
+iD<ESC>
+<X>
+:wq<CR>

@@ -1,0 +1,9 @@
+<X>
+iabc<ESC>
+<X>
+hh
+:ignored input<ESC>
+<X>
+iX<ESC>
+<X>
+:wq<CR>

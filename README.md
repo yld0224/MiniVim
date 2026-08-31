@@ -245,7 +245,9 @@ Basic
 
 #### A1. Motion 与 Count
 
-#### Count
+#### Count 
+
+- 3pt
 
 大多数 Normal 模式命令可以在命令前添加一个十进制 count表示该命令的重复次数
 
@@ -264,7 +266,9 @@ Basic
 
 **Note: `<ESC>` 应取消当前尚未完成的 count, operator 或其他任何 Normal 模式前缀.**
 
-#### Word
+#### Word 
+
+- 3pt
 
 MiniVim 固定使用以下 word 分类:
 
@@ -321,7 +325,9 @@ MiniVim 固定使用以下 word 分类:
 
 对于count,[count]w,b,e的行为均等价于执行count次
 
-#### Line
+#### Line 
+
+- 2pt
 
 | Motion | 行为             |
 | ------ | -------------- |
@@ -347,7 +353,9 @@ MiniVim 固定使用以下 word 分类:
 若 count 大于 1 且当前行已经是文件最后一行, motion 失败并保持 cursor 不变;
 否则移动到能够到达的最下方文本行的行末.
 
-#### File
+#### File 
+
+- 2pt
 
 | Motion      | 行为                        |
 | ----------- | ------------------------- |
@@ -363,7 +371,9 @@ MiniVim 固定使用以下 word 分类:
 目标行只包含空白字符时, 移动到行末
 目标行为真正的空行时, cursor 位于该行唯一合法位置.
 
-#### Window
+#### Window 
+
+- 2pt
 
 | Motion | 行为              |
 | ------ | --------------- |
@@ -390,7 +400,9 @@ M 不使用 count.
 若目标只包含空白字符,移动到行末
 否则移动到目标行第一个非空白字符
 
-##### Scrolling
+##### Scrolling 
+
+- 2pt
 
 在 Normal 模式中, 你需要实现以下滚动指令:
 
@@ -409,7 +421,9 @@ M 不使用 count.
 
 滚动操作支持count,count表示执行count次
 
-##### Special Keys
+##### Special Keys 
+
+- 2pt
 
 在 Normal 模式中, 以下特殊按键应与对应指令具有相同的行为:
 
@@ -432,9 +446,9 @@ M 不使用 count.
 
 
 
-#### Insert Entry
+#### Insert Entry 
 
-
+- 2pt
 
 | Command | 行为                             |
 | ------- | ------------------------------ |
@@ -462,7 +476,9 @@ M 不使用 count.
 
 Note: vim对于这4个命令是支持count的,但我们不要求支持
 
-#### Insert `<Delete>`
+#### Insert `<Delete>` 
+
+- 2pt
 
 删除 Insert cursor 当前所指的一个字符.
 
@@ -530,7 +546,9 @@ D 删除从 cursor 当前字符到当前行行末的文本, 包含 cursor 当前
 
 operator 本身不会立即产生文本修改. 输入 operator 后, MiniVim 进入 Operator-Pending 状态, 等待后续 motion 确定操作范围.
 
-#### Command Grammar
+#### Command Grammar 
+
+- 1pt
 
 需要支持该语法:
 
@@ -548,7 +566,9 @@ Operator-Pending 状态下按下 `<ESC>` 应取消当前 operator 和所有 coun
 
 若 operator 后输入不支持的 motion, 应取消当前 pending command, 不做修改.
 
-#### Supported Operator Motions
+#### Supported Operator Motions 
+
+- 每个1pt,共12pt
 
 我们希望支持以下 motion 参与 operator:
 
@@ -630,7 +650,9 @@ cursor 位于 `hello` 的 `h` 时执行 `dw`则只删除 `hello`, 不删除两�
 
 除这一规则与下面 `cw` 的特殊规则外, MiniVim 不要求实现 Vim 对跨行 Exclusive motion 的其他自动 Inclusive / Linewise 转换.
 
-#### Doubled Operator
+#### Doubled Operator 
+
+- 1pt
 
 相同 operator 连续输入两次表示对完整文本行进行操作:
 
@@ -697,7 +719,9 @@ c{motion}首先删除 motion 所确定的 range, 随后进入 Insert 模式.
 
 ---
 
-#### A4. Register 与 Yank / Put
+#### A4. Register 与 Yank / Put 
+
+- 该部分整体8pt
 
 **依赖: A3.A2**
 
@@ -790,7 +814,9 @@ Linewise Put 完成后, cursor 仍然位于所有新插入文本中的第一行,
 
 ---
 
-#### A5. Undo / Redo
+#### A5. Undo / Redo 
+
+- 该部分整体8pt
 
 **依赖: A3.A2**
 
@@ -861,13 +887,15 @@ Undo / Redo 后应根据当前 Buffer 内容是否与最近一次成功保存的
 
 ### Extra
 
-Visual/Replace mode
+这部分完全是可选的,完成任意部分均可得分,我们会在CR时人工检查你的实现
 
-macro
+Visual/Replace mode(Medium)
 
-search and jump
+macro(Easy)
 
-syntax highlighting
+search and jump(Easy)
+
+syntax highlighting(Hard)
 
 ## 测试策略
 
@@ -880,20 +908,26 @@ make test
 
 ### 集成测试
 
-在ACMOJ上的集成测试,我们不会下发测试点.你的MiniVim会在虚拟终端上进行自动的行为测试.
+在ACMOJ上的集成测试,用于Advanced部分
+
+我们不会下发测试点.你的MiniVim会在虚拟终端上进行自动的行为测试.
 
 ## 调试建议
 
-** (重要) 终端异常时先恢复** 如果进程被强制终止导致 shell 显示异常, 可以在 shell 中运行 `reset` 或
+**(重要) 终端异常时先恢复** 如果进程被强制终止导致 shell 显示异常, 可以在 shell 中运行 `reset` 或
 `stty sane`. 正常控制流应依靠 Terminal 的 RAII 自动恢复.
-** (重要) VSCode 终端行为** 你大概率需要在.vscode文件夹的launch.json里面加
+**(重要) VSCode 终端行为** 你大概率需要在.vscode文件夹的settings.json里面加
  "terminal.integrated.allowChords": false
  从而让vscode里面的终端不优先把按键截获并识别为vscode的内置快捷键
 
 ## 评分标准
 
-basic: 
+basic: 60
 
-advanced:
+advanced: 20
 
-extra(bonus):
+CR: 20
+
+extra(bonus): 10
+
+最后项目你一共可以获得的分数是110分,该项目100分即为满分,超出100的部分可以用来填补其他不满100分的大作业的得分

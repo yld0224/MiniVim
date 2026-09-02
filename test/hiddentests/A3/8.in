@@ -1,0 +1,12 @@
+<X>
+iaa bb cc<CR>dd<ESC>
+<X>
+gg
+2de
+ceX<ESC>
+<X>
+G
+de
+iN<ESC>
+<X>
+:wq<CR>

@@ -1,0 +1,12 @@
+<X>
+iaa bb cc<ESC>
+<X>
+2db
+yb
+iY<ESC>
+<X>
+99b
+db
+iN<ESC>
+<X>
+:wq<CR>

@@ -1,0 +1,14 @@
+<X>
+iabcdef<CR>uvwxyz<CR>123456<ESC>
+<X>
+2dh
+k
+3yh
+iY<ESC>
+<X>
+k
+99h
+dh
+iN<ESC>
+<X>
+:wq<CR>

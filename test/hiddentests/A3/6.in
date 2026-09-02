@@ -1,0 +1,18 @@
+<X>
+ihello<CR>one two  three<CR>last<ESC>
+<X>
+kk
+99h
+dw
+j
+2cwX<ESC>
+<X>
+0
+l
+cwY<ESC>
+<X>
+G
+dw
+iN<ESC>
+<X>
+:wq<CR>

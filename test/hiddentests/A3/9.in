@@ -1,0 +1,10 @@
+<X>
+i  abcdef<ESC>
+<X>
+d0
+c0X<ESC>
+<X>
+y0
+iY<ESC>
+<X>
+:wq<CR>

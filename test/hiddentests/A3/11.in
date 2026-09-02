@@ -1,0 +1,11 @@
+<X>
+iaaa<CR>bbb<CR>ccc<CR>ddd<CR>eee<ESC>
+<X>
+gg
+d3$
+G
+0
+d2$
+iN<ESC>
+<X>
+:wq<CR>

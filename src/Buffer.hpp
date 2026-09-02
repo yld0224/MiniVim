@@ -7,7 +7,12 @@
 namespace sjtu {
 
 class Buffer {
-
+/*
+Buffer.cpp
+Buffer即缓冲区.在我们的MiniVim中,Buffer是用来存储文件的实际内容的
+我们保证在Buffer中只含有可打印字符,即[0x20, 0x7E]以及\t
+我们约定,当你MiniVim打开一个不含有内容的文件时,不应该让lines_.empty(),而应该让lines含有一个空的string作为占位.即表明文件当前只有一行且是空行
+*/
 public:
     explicit Buffer(const std::filesystem::path& path = {});
     explicit Buffer(std::vector<std::string> lines, std::filesystem::path path = {});
@@ -25,13 +30,12 @@ public:
     void SaveAs(const std::filesystem::path& path);
 
 private:
-    void EnsureNonEmpty();
     void WriteTo(const std::filesystem::path& path) const;
 
-    std::vector<std::string> lines_;
-    std::filesystem::path path_;
-    bool ends_with_newline_{false};
-    bool modified_{false};
+    std::vector<std::string> lines_; //文件每行的字符内容,不包含末尾换行符
+    std::filesystem::path path_;    //打开文件的路径
+    bool ends_with_newline_{false}; //我们在lines_里面不含有换行符,为了保证文件内容不变,我们记录文件末尾是否含有换行符
+    bool modified_{false}; //相对于文件的上次状态,该文件是否被修改过
 };
 
 } // namespace sjtu

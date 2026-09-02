@@ -1,0 +1,23 @@
+<X>
+i  aa<CR>	  <CR><CR>  bb<CR>cc<ESC>
+<X>
+gg
+iA<ESC>
+<X>
+2G
+iW<ESC>
+<X>
+3gg
+iE<ESC>
+<X>
+4G
+iB<ESC>
+<X>
+999gg
+iL<ESC>
+<X>
+gg
+G
+iZ<ESC>
+<X>
+:wq<CR>

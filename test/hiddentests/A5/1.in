@@ -1,0 +1,25 @@
+<X>
+ione<CR>two<CR>three<ESC>
+<X>
+gg
+w
+yy
+3x
+u
+iR<ESC>
+<X>
+j
+dd
+k
+0
+i<ESC>[3~A<CR>BC	D<ESC>
+<X>
+cwZ<ESC>
+<X>
+2u
+
+99u
+99
+
+<X>
+:wq<CR>

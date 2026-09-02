@@ -1,0 +1,12 @@
+<X>
+i  abcdef<CR>	  <ESC>
+<X>
+c^W<ESC>
+<X>
+k
+99l
+d^
+y^
+iN<ESC>
+<X>
+:wq<CR>

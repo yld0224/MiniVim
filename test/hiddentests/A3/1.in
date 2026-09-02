@@ -1,0 +1,15 @@
+<X>
+iabcdefghijklmnop<CR>qrstuvwxyz<ESC>
+<X>
+3d2h
+12d<ESC>
+<X>
+iE<ESC>
+<X>
+dQ
+iU<ESC>
+<X>
+12345678901d2h
+iL<ESC>
+<X>
+:wq<CR>

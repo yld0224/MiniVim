@@ -1,0 +1,19 @@
+<X>
+i  aa_bb += cc;  <CR>	  <CR><CR>dd!! ee<CR>ff<ESC>
+<X>
+8b
+iB<ESC>
+<X>
+5w
+iW<ESC>
+<X>
+4e
+iE<ESC>
+<X>
+99w
+iZ<ESC>
+<X>
+99b
+iA<ESC>
+<X>
+:wq<CR>

@@ -1,0 +1,27 @@
+<X>
+i  alpha<CR>	  <CR><CR><CR>omega<ESC>
+<X>
+Ipre-<ESC>
+<X>
+A-tail<ESC>
+<X>
+oBOTTOM<ESC>
+<X>
+OABOVE<ESC>
+<X>
+kk
+Iempty-I<ESC>
+<X>
+k
+Aempty-A<ESC>
+<X>
+k
+Iws-<ESC>
+<X>
+k
+OHEADER<ESC>
+<X>
+jjjjjjj
+oFOOTER<ESC>
+<X>
+:wq<CR>

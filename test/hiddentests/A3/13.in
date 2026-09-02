@@ -1,0 +1,14 @@
+<X>
+ia<CR>b<CR>c<CR>d<CR>e<ESC>
+<X>
+gg
+3yG
+iY<ESC>
+<X>
+d3G
+G
+dG
+cG
+N<ESC>
+<X>
+:wq<CR>

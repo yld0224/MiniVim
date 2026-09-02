@@ -1,3 +1,8 @@
+/*
+Basic部分 模块测试
+这是Window相关的测试,它只测试你是否正确实现了Window模块的公共接口约定.
+Note: 如果你的vscode里面的c++ intellisense/clangd报错了,是正常的,因为它没有正确检测到文件的依赖关系,这对于我们的make test指令没有影响.
+*/
 #include "Window.hpp"
 
 #include "TestSupport.hpp"

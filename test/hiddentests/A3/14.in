@@ -1,0 +1,12 @@
+<X>
+ia<CR>b<CR>c<CR>d<CR>e<CR>f<CR>g<CR>h<ESC>
+<X>
+gg
+2d2d
+2y2y
+iY<ESC>
+<X>
+2c2c
+C<ESC>
+<X>
+:wq<CR>

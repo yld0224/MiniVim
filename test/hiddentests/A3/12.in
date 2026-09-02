@@ -1,0 +1,11 @@
+<X>
+i  aa<CR>	  <CR><CR>bb<ESC>
+<X>
+3ygg
+iY<ESC>
+<X>
+dgg
+dgg
+iN<ESC>
+<X>
+:wq<CR>

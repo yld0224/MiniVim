@@ -1,0 +1,13 @@
+<X>
+iabcdef<ESC>
+<X>
+99h
+d3l
+yl
+iY<ESC>
+<X>
+99l
+dl
+iN<ESC>
+<X>
+:wq<CR>

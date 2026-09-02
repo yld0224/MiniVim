@@ -1,0 +1,18 @@
+<X>
+iab	 cd<CR><CR>tail<ESC>[3~<ESC>
+<X>
+k
+i<ESC>[3~<ESC>
+<X>
+k
+ll
+i<ESC>[3~<ESC>
+<X>
+a<ESC>[3~<ESC>
+<X>
+llllllllllll
+i<ESC>[3~<ESC>
+<X>
+a<ESC>[3~<ESC>
+<X>
+:wq<CR>

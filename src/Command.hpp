@@ -1,4 +1,5 @@
-/*Command.hpp
+/*
+Command.hpp
 用来将NormalMode下的用户输入转化成Editor可以看懂的EditorAction
 */
 #ifndef MINIVIM_COMMAND_HPP

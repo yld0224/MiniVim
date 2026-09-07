@@ -12,7 +12,7 @@ EditorAction NormalModeParser::Feed(KeyEvent key) {
     if (key.code_ == KeyCode::Character) {
         auto value = key.value_;
         switch (value) {
-        //你需要填写这里的逻辑
+        //你需要填写这里
         default:
             break;
         }

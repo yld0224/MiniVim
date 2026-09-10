@@ -98,9 +98,12 @@ MiniVim 的哲学是模态编辑, 高效的编辑操作依托各模式间的切�
 
 并为每个模式实现一些最基础的功能.
 
-在 Basic 部分, 你可以简单地认为屏幕由两部分构成: 屏幕最下面两行的保留部分 (用于输入命令, 显示信息等)
+在 Basic 部分, 你可以简单地认为屏幕由两部分构成: 屏幕最下面一行的保留部分 (用于输入命令, 显示信息等)
 , 以及上面其余的编辑部分, 即缓冲区.
 Normal 模式与 Insert 模式主要操作缓冲区, 而 Command-line 模式则会将保留部分当成一块用于输入命令的命令缓冲区来操作.
+
+屏幕列的计算遵循 `src/TextLayout.hpp`: Tab 展开到下一个 4 的倍数列, 光标位于 Tab 时定位到其展开区域的起点.
+这一显示约定与 Vim 默认将 Normal 光标显示在 Tab 展开区域末端的行为不同.
 
 `<C-q>`
 在该项目中是未被绑定的保留键位. 你可以将其实现为紧急退出键, 按下后在任意模式下结束程序, 以便方便调试 Basic 部分. 我们不会对该键行为进行评测.
@@ -217,6 +220,8 @@ Advanced 部分包含若干相互独立的可选功能. 你可以选择其中任
 
 除非特别说明, 本节中的命令语义按照 Vim 的行为定义. 本项目不要求实现 Vim 中与 option, mapping, macro, mark, swap file 等机制相关的附加行为. 若某项 Vim 行为依赖这些机制, ACMOJ 不会对此进行测试.
 
+下文明确给出的课程规则优先于 Vim 的默认行为. Count 截断、部分空范围操作、跨行 Characterwise Put 的光标位置与净修改为零的 Insert session 等规则存在课程定义, 不应直接以默认 Vim 的输出覆盖这些规定.
+
 部分功能之间存在依赖关系. 依赖表示后一个功能的测试可能直接使用前一个功能.
 
 ```text
@@ -253,6 +258,10 @@ Basic
 连续数字共同构成一个 count. (初始状态下的 `0` 不属于 count, 而表示 motion `0`; 已经开始输入 count 后的 `0` 则属于 count.)
 输入 count 时不会产生整数溢出. 
 若一个count大于10位,你的count应该保留最新输入的10位
+
+这是课程自定义的十进制截断规则, 不要求复现 Vim 对超大 count 的处理方式.
+例如 `10000000002l` 应按 count 为 2 执行. 实现应在读取数字的过程中保留末十位, 不能先让固定宽度整数溢出再截断.
+
 你可能注意到实际vim会把count显示在右下角,我们的评测不会对此做出要求.
 (事实上,在normal模式下,我们的测试点不会对窗口最下面的一行做任何要求)
 
@@ -418,7 +427,7 @@ M 不使用 count.
 
 对于 I:
 若当前行存在非空白字符, 在第一个非空白字符之前进入 Insert 模式.
-若当前行只包含空格或 \t, 在第0列开始插入(实际vim在这里的行为是取决于你对vim的设置的)
+若当前行只包含空格或 \t, 在第0列开始插入. 这是本项目固定采用的规则; Vim 在这里的行为可能随设置不同, 不作为覆盖本规则的依据.
 若当前行为真正的空行, 在该行唯一合法位置进入 Insert 模式.
 
 对于 A:
@@ -520,6 +529,10 @@ motion count = count1 * count2
 ```
 
 count 相乘时同样保留低10位
+
+先分别按 A1 规则读取两个 count, 再取数学乘积的末十位; 中间整数溢出不能改变结果.
+例如 `5000000001d2l` 的有效 motion count 为 2, `9999999999d9999999999l` 的有效 motion count 为 1.
+这是课程规则, 验证时不能直接依赖 Vim 的超大 count 行为.
 
 Operator-Pending 状态下按下 `<ESC>` 应取消当前 operator 和所有 count.
 
@@ -663,6 +676,9 @@ c{motion}首先删除 motion 所确定的 range, 随后进入 Insert 模式.
 若 range 为空, 不删除文本, 直接在当前位置进入 Insert 模式.
 对于 Linewise range, 删除范围内的完整文本行, 在原范围位置保留一个空行, 并在该空行唯一合法位置进入 Insert 模式.
 
+空 Characterwise range 进入 Insert 是课程规定. 例如文件开头的 `cb` 应进入 Insert, 即使默认 Vim 对该操作不进入 Insert.
+这不改变前文明确规定的 motion 失败行为: 文件末行的 `cj`、文件首行的 `ck`, 以及文件末行失败的 `c2$` 均无效果, 不进入 Insert.
+
 #### `cw` Special Case
 
 `cw` 是 `c{motion}` 的特殊情况.
@@ -712,6 +728,9 @@ C
 
 若一次操作没有产生任何有效的文本范围, 则 unnamed register 保持原内容不变.
 
+此规则同样适用于空范围 yank 和 change. 例如行首的 `yh` 应保留原 register 的文本与类型, 不采用本次参考 Vim 中清空 unnamed register 的行为.
+Linewise yank 一个真实存在的空行仍有有效范围, 会写入包含该空行的 Linewise register; 它与空 Characterwise range 不同.
+
 新的 Register Write 会完全覆盖之前 unnamed register 中保存的文本和类型.
 
 #### p / P
@@ -736,6 +755,9 @@ p 和 P 将 unnamed register 中保存的内容重新插入 Buffer.(不改变reg
 
 put 完成后, cursor 停留在最后一个被插入的字符上.
 若最后插入的位置为一个空行, 没有实际字符可以停留, 则 cursor 位于该空行唯一合法位置.
+
+上述光标规则也适用于跨行 Characterwise register 及带 count 的 put, 是本项目统一采用的行为.
+Vim 跨行 `p` / `P` 的默认光标位置可能不同, 本项目仍以这里规定的插入终点为准.
 
 #### Linewise Put
 
@@ -823,7 +845,10 @@ Normal 模式中的一条完整编辑命令构成一个 undo unit.
 
 执行一次 u 应直接恢复执行 Change command 之前的 Buffer 状态.
 
-若一个 Insert session 最终没有产生任何文本修改, 则不产生新的 undo unit.
+若一个 Insert session 结束时的完整 Buffer 内容与该次编辑开始前完全一致, 则不产生新的 undo unit.
+这里比较的是最终内容, 而不是期间是否执行过插入或删除. 例如在普通 `i` 会话中输入 `TMP`, 再退格三次并按 `<ESC>`, 不应增加 undo unit.
+通过 Change command 进入 Insert 时, 比较基准是 Change 删除之前的完整 Buffer 内容.
+这是课程规则; 本次参考 Vim 会为上述输入后全部删回的会话保留 undo 记录, 因此不能直接照搬该行为.
 
 
 #### Redo History
@@ -870,6 +895,9 @@ make test
 在ACMOJ上的集成测试,用于Advanced部分
 
 我们不会下发测试点.你的MiniVim会在虚拟终端上进行自动的行为测试.
+
+测试制作与验证方式见 [hidden tests 说明](./test/hiddentests/Note.md). 当前快照比较正文区域, 不比较最底下一行.
+对于规范与 Vim 不一致的部分, 参考答案按课程规则构造.
 
 ## 调试建议
 

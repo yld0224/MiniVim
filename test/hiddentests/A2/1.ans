@@ -1,9 +1,288 @@
-HEADER
-  alpha
-	  ws-
-empty-A
-empty-I
-pre-omega-tail
-ABOVE
-BOTTOM
-FOOTER
+  alpha_01 += beta;                                                             
+x                                                                               
+                                                                                
+                                                                                
+omega!!next                                                                     
+two  words_7                                                                    
+  last.end                                                                      
+07_row_abcdEFG                                                                  
+08_row_abcdEFG                                                                  
+09_row_abcdEFG                                                                  
+10_row_abcdEFG                                                                  
+11_row_abcdEFG                                                                  
+12_row_abcdEFG                                                                  
+13_row_abcdEFG                                                                  
+14_row_abcdEFG                                                                  
+15_row_abcdEFG                                                                  
+16_row_abcdEFG                                                                  
+17_row_abcdEFG                                                                  
+18_row_abcdEFG                                                                  
+19_row_abcdEFG                                                                  
+~                                                                               
+~                                                                               
+~                                                                               
+19;13
+  alpha_01 += beta;                                                             
+x                                                                               
+                                                                                
+                                                                                
+omega!!next                                                                     
+two  words_7                                                                    
+  last.end                                                                      
+07_row_abcdEFG                                                                  
+08_row_abcdEFG                                                                  
+09_row_abcdEFG                                                                  
+10_row_abcdEFG                                                                  
+11_row_abcdEFG                                                                  
+12_row_abcdEFG                                                                  
+13_row_abcdEFG                                                                  
+14_row_abcdEFG                                                                  
+15_row_abcdEFG                                                                  
+16_row_abcdEFG                                                                  
+17_row_abcdEFG                                                                  
+18_row_abcdEFG                                                                  
+19_row_abcdEFG                                                                  
+~                                                                               
+~                                                                               
+~                                                                               
+0;2
+  HEAD-alpha_01 += beta;                                                        
+x                                                                               
+                                                                                
+                                                                                
+omega!!next                                                                     
+two  words_7                                                                    
+  last.end                                                                      
+07_row_abcdEFG                                                                  
+08_row_abcdEFG                                                                  
+09_row_abcdEFG                                                                  
+10_row_abcdEFG                                                                  
+11_row_abcdEFG                                                                  
+12_row_abcdEFG                                                                  
+13_row_abcdEFG                                                                  
+14_row_abcdEFG                                                                  
+15_row_abcdEFG                                                                  
+16_row_abcdEFG                                                                  
+17_row_abcdEFG                                                                  
+18_row_abcdEFG                                                                  
+19_row_abcdEFG                                                                  
+~                                                                               
+~                                                                               
+~                                                                               
+0;7
+  HEAD-alpha_01 += beta;                                                        
+x                                                                               
+                                                                                
+                                                                                
+omega!!next                                                                     
+two  words_7                                                                    
+  last.end                                                                      
+07_row_abcdEFG                                                                  
+08_row_abcdEFG                                                                  
+09_row_abcdEFG                                                                  
+10_row_abcdEFG                                                                  
+11_row_abcdEFG                                                                  
+12_row_abcdEFG                                                                  
+13_row_abcdEFG                                                                  
+14_row_abcdEFG                                                                  
+15_row_abcdEFG                                                                  
+16_row_abcdEFG                                                                  
+17_row_abcdEFG                                                                  
+18_row_abcdEFG                                                                  
+19_row_abcdEFG                                                                  
+~                                                                               
+~                                                                               
+~                                                                               
+3;0
+  HEAD-alpha_01 += beta;                                                        
+x                                                                               
+                                                                                
+W                                                                               
+omega!!next                                                                     
+two  words_7                                                                    
+  last.end                                                                      
+07_row_abcdEFG                                                                  
+08_row_abcdEFG                                                                  
+09_row_abcdEFG                                                                  
+10_row_abcdEFG                                                                  
+11_row_abcdEFG                                                                  
+12_row_abcdEFG                                                                  
+13_row_abcdEFG                                                                  
+14_row_abcdEFG                                                                  
+15_row_abcdEFG                                                                  
+16_row_abcdEFG                                                                  
+17_row_abcdEFG                                                                  
+18_row_abcdEFG                                                                  
+19_row_abcdEFG                                                                  
+~                                                                               
+~                                                                               
+~                                                                               
+2;0
+  HEAD-alpha_01 += beta;                                                        
+x                                                                               
+EMPTY                                                                           
+W                                                                               
+omega!!next                                                                     
+two  words_7                                                                    
+  last.end                                                                      
+07_row_abcdEFG                                                                  
+08_row_abcdEFG                                                                  
+09_row_abcdEFG                                                                  
+10_row_abcdEFG                                                                  
+11_row_abcdEFG                                                                  
+12_row_abcdEFG                                                                  
+13_row_abcdEFG                                                                  
+14_row_abcdEFG                                                                  
+15_row_abcdEFG                                                                  
+16_row_abcdEFG                                                                  
+17_row_abcdEFG                                                                  
+18_row_abcdEFG                                                                  
+19_row_abcdEFG                                                                  
+~                                                                               
+~                                                                               
+~                                                                               
+5;12
+                                                                                
+  HEAD-alpha_01 += beta;                                                        
+x                                                                               
+EMPTY                                                                           
+W                                                                               
+omega!!next                                                                     
+two  words_7-TAIL                                                               
+  last.end                                                                      
+07_row_abcdEFG                                                                  
+08_row_abcdEFG                                                                  
+09_row_abcdEFG                                                                  
+10_row_abcdEFG                                                                  
+11_row_abcdEFG                                                                  
+12_row_abcdEFG                                                                  
+13_row_abcdEFG                                                                  
+14_row_abcdEFG                                                                  
+15_row_abcdEFG                                                                  
+16_row_abcdEFG                                                                  
+17_row_abcdEFG                                                                  
+18_row_abcdEFG                                                                  
+19_row_abcdEFG                                                                  
+~                                                                               
+~                                                                               
+0;0
+TOP                                                                             
+  HEAD-alpha_01 += beta;                                                        
+x                                                                               
+EMPTY                                                                           
+W                                                                               
+omega!!next                                                                     
+two  words_7-TAIL                                                               
+  last.end                                                                      
+07_row_abcdEFG                                                                  
+08_row_abcdEFG                                                                  
+09_row_abcdEFG                                                                  
+10_row_abcdEFG                                                                  
+11_row_abcdEFG                                                                  
+12_row_abcdEFG                                                                  
+13_row_abcdEFG                                                                  
+14_row_abcdEFG                                                                  
+15_row_abcdEFG                                                                  
+16_row_abcdEFG                                                                  
+17_row_abcdEFG                                                                  
+18_row_abcdEFG                                                                  
+19_row_abcdEFG                                                                  
+~                                                                               
+~                                                                               
+0;2
+TOP                                                                             
+  HEAD-alpha_01 += beta;                                                        
+x                                                                               
+EMPTY                                                                           
+W                                                                               
+omega!!next                                                                     
+two  words_7-TAIL                                                               
+  last.end                                                                      
+07_row_abcdEFG                                                                  
+08_row_abcdEFG                                                                  
+09_row_abcdEFG                                                                  
+10_row_abcdEFG                                                                  
+11_row_abcdEFG                                                                  
+12_row_abcdEFG                                                                  
+13_row_abcdEFG                                                                  
+14_row_abcdEFG                                                                  
+15_row_abcdEFG                                                                  
+16_row_abcdEFG                                                                  
+17_row_abcdEFG                                                                  
+18_row_abcdEFG                                                                  
+19_row_abcdEFG                                                                  
+                                                                                
+~                                                                               
+21;0
+TOP                                                                             
+  HEAD-alpha_01 += beta;                                                        
+x                                                                               
+EMPTY                                                                           
+W                                                                               
+omega!!next                                                                     
+two  words_7-TAIL                                                               
+  last.end                                                                      
+07_row_abcdEFG                                                                  
+08_row_abcdEFG                                                                  
+09_row_abcdEFG                                                                  
+10_row_abcdEFG                                                                  
+11_row_abcdEFG                                                                  
+12_row_abcdEFG                                                                  
+13_row_abcdEFG                                                                  
+14_row_abcdEFG                                                                  
+15_row_abcdEFG                                                                  
+16_row_abcdEFG                                                                  
+17_row_abcdEFG                                                                  
+18_row_abcdEFG                                                                  
+19_row_abcdEFG                                                                  
+BOTTOM                                                                          
+~                                                                               
+21;5
+TOP                                                                             
+  HEAD-alpha_01 += beta;                                                        
+x                                                                               
+EMPTY                                                                           
+W                                                                               
+omega!!next                                                                     
+two  words_7-TAIL                                                               
+  last.end                                                                      
+07_row_abcdEFG                                                                  
+                                                                                
+08_row_abcdEFG                                                                  
+09_row_abcdEFG                                                                  
+10_row_abcdEFG                                                                  
+11_row_abcdEFG                                                                  
+12_row_abcdEFG                                                                  
+13_row_abcdEFG                                                                  
+14_row_abcdEFG                                                                  
+15_row_abcdEFG                                                                  
+16_row_abcdEFG                                                                  
+17_row_abcdEFG                                                                  
+18_row_abcdEFG                                                                  
+19_row_abcdEFG                                                                  
+BOTTOM                                                                          
+9;0
+TOP                                                                             
+  HEAD-alpha_01 += beta;                                                        
+x                                                                               
+EMPTY                                                                           
+W                                                                               
+omega!!next                                                                     
+two  words_7-TAIL                                                               
+  last.end                                                                      
+07_row_abcdEFG                                                                  
+INNER                                                                           
+08_row_abcdEFG                                                                  
+09_row_abcdEFG                                                                  
+10_row_abcdEFG                                                                  
+11_row_abcdEFG                                                                  
+12_row_abcdEFG                                                                  
+13_row_abcdEFG                                                                  
+14_row_abcdEFG                                                                  
+15_row_abcdEFG                                                                  
+16_row_abcdEFG                                                                  
+17_row_abcdEFG                                                                  
+18_row_abcdEFG                                                                  
+19_row_abcdEFG                                                                  
+BOTTOM                                                                          
+9;4

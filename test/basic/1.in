@@ -28,7 +28,6 @@ x<CR><X>
 <SP><X>
 <CR><X>
 19_abcdefGHIJK_<ESC><X><X><X>
-
 <X><X><P-0;0;23;80><CURP>
 kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
 llll
@@ -37,7 +36,6 @@ a
 MID
 <X><X><P-0;0;23;80><CURP>
 <ESC><X><X><X>
-
 <X><X><P-0;0;23;80><CURP>
 kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
 j
@@ -45,17 +43,14 @@ llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllla
 <X><X><P-0;0;23;80><CURP>
 <SP><X>
 END<SP><X>
-
 <X><X><P-0;0;23;80><CURP>
 <ESC><X><X><X>
-
 <X><X><P-0;0;23;80><CURP>
 kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
 jj
 aEMPTY
 <X><X><P-0;0;23;80><CURP>
 <ESC><X><X><X>
-
 <X><X><P-0;0;23;80><CURP>
 kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
 jjj
@@ -63,10 +58,8 @@ a<CR><X>
 NEXT
 <X><X><P-0;0;23;80><CURP>
 <ESC><X><X><X>
-
 <X><X><P-0;0;23;80><CURP>
 :q!
 <X><X><P-0;0;23;80>
 <CR><X>
-
 <X><X><X><X><X><P-0;0;23;80><CURP><E>

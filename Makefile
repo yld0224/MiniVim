@@ -3,7 +3,7 @@ CXX ?= g++
 CPPFLAGS += -Isrc
 CXXFLAGS += -std=c++17 -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion
 
-TARGET := MiniVim
+TARGET := code
 BUILD_DIR := build
 
 SOURCES := \

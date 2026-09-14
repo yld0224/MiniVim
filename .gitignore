@@ -9,5 +9,10 @@ MiniVim
 *.d
 #compile
 compile_commands.json
+.cache/
 #test tools
 vtemu/
+#for debug
+3198/
+#hidden test
+test/hiddentests

@@ -48,7 +48,6 @@ x<CR><X>
 <SP><X>
 <CR><X>
 33_abcdefGHIJK_0123456<ESC><X><X><X>
-
 <X><X><P-0;0;23;80><CURP>
 kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
 <X><X><P-0;0;23;80><CURP>
@@ -77,5 +76,4 @@ llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll
 :q!
 <X><X><P-0;0;23;80>
 <CR><X>
-
 <X><X><X><X><X><P-0;0;23;80><CURP><E>

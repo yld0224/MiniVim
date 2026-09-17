@@ -1,4 +1,4 @@
- !"#$%%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO                                
+replacement                                                                     
 ~                                                                               
 ~                                                                               
 ~                                                                               
@@ -21,9 +21,8 @@
 ~                                                                               
 ~                                                                               
 ~                                                                               
-0;48
- !"#$%%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO                                
-PQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~                                 
+0;10
+replacement                                                                     
 ~                                                                               
 ~                                                                               
 ~                                                                               
@@ -45,28 +44,6 @@ PQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
 ~                                                                               
 ~                                                                               
 ~                                                                               
-1;47
- !"#$%%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO                                
-PQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~                                 
 ~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-1;46
+:wq basic-overwrite.txt                                                         
+23;23

@@ -1,0 +1,7 @@
+<X>
+ireplacement<ESC>
+<X><X><P-0;0;23;80><CURP>
+:wq<SP>basic-overwrite.txt
+<X><P-0;0;23;80><P-23;0;24;80><CURP>
+<CR>
+<X><X><X><P-0;0;23;80><CURP><E>

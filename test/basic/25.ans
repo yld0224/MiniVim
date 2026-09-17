@@ -1,4 +1,5 @@
- !"#$%%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO                                
+save me                                                                         
+second line                                                                     
 ~                                                                               
 ~                                                                               
 ~                                                                               
@@ -20,10 +21,10 @@
 ~                                                                               
 ~                                                                               
 ~                                                                               
+1;10
+save me                                                                         
+second line                                                                     
 ~                                                                               
-0;48
- !"#$%%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO                                
-PQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~                                 
 ~                                                                               
 ~                                                                               
 ~                                                                               
@@ -44,29 +45,5 @@ PQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
 ~                                                                               
 ~                                                                               
 ~                                                                               
-~                                                                               
-1;47
- !"#$%%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO                                
-PQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~                                 
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-~                                                                               
-1;46
+:wq basic-save.txt                                                              
+23;18

@@ -11,6 +11,7 @@ Terminal.cpp
 #include <stdexcept>
 #include <system_error>
 
+#include <poll.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
@@ -185,9 +186,17 @@ unsigned char Terminal::ReadByte() {
 }
 
 std::optional<unsigned char> Terminal::TryReadByte() {
-    //尝试读取一个字节,超时或暂时不可读时返回nullopt,被信号中断时重试
+    //等待后续字节最多10毫秒,超时或暂时不可读时返回nullopt,被信号中断时重试
     //它用来等待转义序列的后续字节,避免把单独按下Escape误当成永远没读完的特殊键
     while (true) {
+        pollfd fd{STDIN_FILENO, POLLIN, 0};
+        auto ready = ::poll(&fd, 1, 10);
+        if (ready == 0) { return std::nullopt; }
+        if (ready == -1) {
+            if (errno == EINTR) { continue; }
+            ThrowSystemError("poll");
+        }
+
         unsigned char value = 0;
         auto result = ::read(STDIN_FILENO, &value, 1);
         if (result == 1) { return value; }

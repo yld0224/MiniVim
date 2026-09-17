@@ -1,0 +1,17 @@
+<X>
+iabc<ESC>
+<X><X><P-0;0;23;80><CURP>
+h:wq<SP>basic-cancel.txt
+<X><P-0;0;23;80><P-23;0;24;80><CURP>
+<ESC>
+<X><X><P-0;0;23;80><CURP>
+:
+<X><P-0;0;23;80><P-23;0;24;80><CURP>
+quit!
+<X><P-0;0;23;80><P-23;0;24;80><CURP>
+<ESC>
+<X><X><P-0;0;23;80><CURP>
+iX<ESC>
+<X><X><P-0;0;23;80><CURP>
+:q!<CR>
+<X><X><X><P-0;0;23;80><CURP><E>

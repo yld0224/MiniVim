@@ -43,7 +43,7 @@ std::string Renderer::Render(const Buffer& buffer, const Window& window, const R
        //这里是提示2中的部分
     }
 
-    //std::string bottom;
+    std::string bottom;
     //if (state.mode_ == Mode::CommandLine) {
         //bottom = ":" + state.command_;
     //} else if (!state.message_.empty()) {
@@ -53,7 +53,7 @@ std::string Renderer::Render(const Buffer& buffer, const Window& window, const R
     //}
     //AppendClearedLine(frame, bottom, width, false);
     //这里是提示3中的部分
-    //由于我们不会对底部行进行评测,我们只是注释掉了我们参考实现的逻辑,你可以取消注释并认为bottom行可以正常显示了
+    //我们只会在CommandMode的时候检查一下底部的命令内容,在NormalMode不会看底部,所以message你可以随意写
 
     std::size_t cursor_row{0};
     std::size_t cursor_column{0};

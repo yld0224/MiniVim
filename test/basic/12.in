@@ -1,11 +1,10 @@
 <X>
-iabcdef<CR>xy<CR>abcdef<ESC>
-<X><X><P-0;0;23;80><CURP>
+iabcdef<CR>xy<CR>abcdef<EX>
+<P-0;0;3;80><CURP>
 k
-<X><P-0;0;23;80><CURP>
+<X><P-0;0;3;80><CURP>
 hkk
-<X><P-0;0;23;80><CURP>
+<X><P-0;0;3;80><CURP>
 lllllj
-<X><P-0;0;23;80><CURP>
-:q!<CR>
-<X><X><X><P-0;0;23;80><CURP><E>
+<X><P-0;0;3;80><CURP>
+<E>

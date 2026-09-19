@@ -1,9 +1,8 @@
 <X>
-iabc<ESC>
-<X><X><P-0;0;23;80><CURP>
+iabc<EX>
+<P-0;0;1;80><CURP>
 hhhi<CR>
-<X><P-0;0;23;80><CURP>
-<ESC>
-<X><X><P-0;0;23;80><CURP>
-:q!<CR>
-<X><X><X><P-0;0;23;80><CURP><E>
+<X><P-0;0;2;80><CURP>
+<EX>
+<P-0;0;2;80><CURP>
+<E>

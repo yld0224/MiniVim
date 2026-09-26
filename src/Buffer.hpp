@@ -34,8 +34,6 @@ private:
 
     std::vector<std::string> lines_; //文件每行的字符内容,不包含末尾换行符
     std::filesystem::path path_;    //打开文件的路径
-    bool ends_with_newline_{false}; //我们在lines_里面不含有换行符,为了保证文件内容不变,我们记录文件末尾是否含有换行符
-    bool modified_{false}; //相对于文件的上次状态,该文件是否被修改过
 };
 
 } // namespace sjtu
